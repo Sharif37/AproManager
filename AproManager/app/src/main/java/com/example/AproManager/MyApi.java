@@ -13,6 +13,11 @@ public interface MyApi {
     @GET("check-user")
     Call<Boolean> checkUser(@Query("email") String email);
 
+        @GET("checkPasswordMatch")
+        Call<Boolean> checkPasswordMatch(
+                @Query("email") String email,
+                @Query("password") String password
+        );
 
-
+       //use retrofit
 }

@@ -5,12 +5,14 @@ public class UserData {
     private String name;
     private String email;
     private String profileUri;
+    private String password ;
 
-    public UserData(String token, String name, String email, String profileUri) {
-        this.token = token;
+    public UserData( String name, String email, String profileUri,String password) {
+
         this.name = name;
         this.email = email;
         this.profileUri = profileUri;
+        this.password=password ;
     }
 
     // Getters and setters

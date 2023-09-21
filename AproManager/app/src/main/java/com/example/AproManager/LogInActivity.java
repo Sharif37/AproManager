@@ -2,79 +2,72 @@ package com.example.AproManager;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.IntentSenderRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import java.io.IOException;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
-import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class signUpActivity extends AppCompatActivity {
+public class LogInActivity extends AppCompatActivity {
 
-    Button signUp;
-    CardView signUp_google, signUp_microsoft;
-    private  EditText userEmail, userPassword;
-    private SignInClient oneTapClient;
-    private BeginSignInRequest signUpRequest;
-    private static final int REQ_ONE_TAP = 3;
+
+    CardView loginWithgoogle ;
+    TextView signup ;
+    private static final int REQ_ONE_TAP = 2;
+    SignInClient oneTapClient ;
     SignInCredential credential ;
-    private boolean showOneTapUI = true;
-    // UUID random ;
+    ApiService apiService ;
+    private  EditText userEmail, userPassword;
+    Button  logInBtn ;
 
-    ApiService apiService;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
-        signUp = findViewById(R.id.signupbtn);
-        signUp_google = findViewById(R.id.card_google);
+        setContentView(R.layout.activity_log_in);
+        loginWithgoogle = findViewById(R.id.card_google);
+
+        signup = findViewById(R.id.signUpText);
         apiService = ApiService.getInstance();
         userEmail=findViewById(R.id.email);
         userPassword=findViewById(R.id.password);
+        logInBtn=findViewById(R.id.login_btn) ;
 
 
-        signUp_google.setOnClickListener(new View.OnClickListener() {
+        signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadingSpinner.showLoadingSpinner(signUpActivity.this);
-                oneTapClient = Identity.getSignInClient(signUpActivity.this);
+                Intent intent = new Intent(LogInActivity.this, signUpActivity.class);
+                startActivity(intent);
+            }
+        });
+        loginWithgoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                loadingSpinner.showLoadingSpinner(LogInActivity.this);
+
+                oneTapClient = Identity.getSignInClient(LogInActivity.this);
                 BeginSignInRequest signInRequest = BeginSignInRequest.builder()
                         .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                                 .setSupported(true)
@@ -83,12 +76,11 @@ public class signUpActivity extends AppCompatActivity {
                                 .build())
                         .build();
 
-                GoogleOneTapUtils.startOneTapLogin(signUpActivity.this, oneTapClient, signInRequest, REQ_ONE_TAP);
-
+                GoogleOneTapUtils.startOneTapLogin(LogInActivity.this, oneTapClient, signInRequest, REQ_ONE_TAP);
 
             }
         });
-        signUp.setOnClickListener(new View.OnClickListener() {
+        logInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String email,password ;
@@ -98,30 +90,28 @@ public class signUpActivity extends AppCompatActivity {
                 {
                     if(password.length()>=5)
                     {
-                       checkUser(email,password,null);
+                      GoogleOneTapUtils.checkLogin(LogInActivity.this,apiService,email,password);
 
                     }else
                     {
-                        Toast.makeText(signUpActivity.this, "password minimum length should 5", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LogInActivity.this, "password minimum length should 5", Toast.LENGTH_SHORT).show();
                     }
 
                 }else
                 {
-                    Toast.makeText(signUpActivity.this, "Email not valid", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LogInActivity.this, "Email not valid", Toast.LENGTH_SHORT).show();
                 }
 
             }
+
         });
 
 
     }
-
-
-
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
 
         switch (requestCode) {
             case REQ_ONE_TAP:
@@ -129,31 +119,22 @@ public class signUpActivity extends AppCompatActivity {
                     credential = oneTapClient.getSignInCredentialFromIntent(data);
                     String idToken = credential.getGoogleIdToken();
                     if (idToken != null) {
-                        // Got an ID token from Google. Use it to authenticate
-                        // with your backend.
-                        // Toast.makeText(this, "got id token", Toast.LENGTH_SHORT).show();
 
-                        // Here, you can send the ID token to your backend for validation.
-
-                        // For example, you can create a UserData object and send it to the server:
                         String email = credential.getId();
-                        checkUser(email, null,credential);
+                       GoogleOneTapUtils.checkUser_login(LogInActivity.this,apiService,email);
+
                     }
                 } catch (ApiException e) {
                     Log.e(TAG, "API exception: " + e.getStatusCode());
                 }finally {
+                    // Hide the loading spinner after handling the result
                     loadingSpinner.hideLoadingSpinner();
                 }
                 break;
         }
 
+
     }
-
-    public void checkUser(String email,String password, SignInCredential credential) {
-        GoogleOneTapUtils.checkUser(this, apiService, email,password,credential);
-    }
-
-
 
 
 
