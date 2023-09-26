@@ -45,6 +45,8 @@ public class LogInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+        getSupportActionBar().hide();
+
         loginWithgoogle = findViewById(R.id.card_google);
 
         signup = findViewById(R.id.signUpText);
@@ -127,7 +129,7 @@ public class LogInActivity extends AppCompatActivity {
                 } catch (ApiException e) {
                     Log.e(TAG, "API exception: " + e.getStatusCode());
                 }finally {
-                    // Hide the loading spinner after handling the result
+                    // Hide  spinner
                     loadingSpinner.hideLoadingSpinner();
                 }
                 break;

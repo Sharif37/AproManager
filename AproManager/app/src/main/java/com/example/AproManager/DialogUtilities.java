@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment;
 public class DialogUtilities extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the Builder class for convenient dialog construction
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.dialog_start)
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
@@ -22,7 +22,7 @@ public class DialogUtilities extends DialogFragment {
                     }
                 });
 
-        // Create the AlertDialog object and return it
+
         return builder.create();
     }
 

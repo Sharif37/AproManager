@@ -63,6 +63,8 @@ public class signUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+        getSupportActionBar().hide();
+
         signUp = findViewById(R.id.signupbtn);
         signUp_google = findViewById(R.id.card_google);
         apiService = ApiService.getInstance();

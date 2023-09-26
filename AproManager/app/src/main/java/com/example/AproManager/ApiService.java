@@ -15,7 +15,7 @@ public class ApiService {
 
     private ApiService() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://f909-103-134-127-176.ngrok-free.app/") // backend URL
+                .baseUrl("https://6ebe-2404-1c40-d4-66be-5563-7c83-4b65-dfd5.ngrok-free.app/") // backend URL
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         myApi = retrofit.create(MyApi.class);

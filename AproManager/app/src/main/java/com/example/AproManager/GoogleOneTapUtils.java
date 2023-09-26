@@ -167,7 +167,7 @@ public class GoogleOneTapUtils {
                         //user already present
                        //now check password with email
                         isPasswordOk(email,password,activity,apiService);
-                        Toast.makeText(activity, "user present", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(activity, "user present", Toast.LENGTH_SHORT).show();
 
                     } else {
                         Toast.makeText(activity, "please sign up first.", Toast.LENGTH_SHORT).show();
