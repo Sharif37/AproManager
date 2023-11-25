@@ -1,0 +1,83 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="350dp"
+    android:layout_height="280dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg4"
+    android:layout_gravity="center"
+    android:padding="16dp">
+
+    <!-- Board Name and Icon Section -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+       >
+        <TextView
+            android:id="@+id/boardName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#16000000"
+            android:text="Board"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:padding="10dp"/>
+
+        <ImageView
+            android:id="@+id/boardIcon"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="#16000000"
+            android:src="@drawable/baseline_space_dashboard_24" />
+
+    </LinearLayout>
+
+    <!-- Workspace Name and Icon Section -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/workspaceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#16000000"
+            android:text="Workspace"
+            android:textColor="@color/white"
+            android:padding="10dp"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/workspaceIcon"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="#16000000"
+            android:src="@drawable/baseline_workspaces_24" />
+
+    </LinearLayout>
+
+    <!-- Close Button -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:textStyle="bold"
+        android:textSize="18dp"
+        android:textColor="@color/white"
+        android:layout_gravity="start"
+        android:drawableEnd="@drawable/baseline_close_24"
+        android:id="@+id/closeButton"
+        android:backgroundTint="#16000000"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        />
+
+</LinearLayout>

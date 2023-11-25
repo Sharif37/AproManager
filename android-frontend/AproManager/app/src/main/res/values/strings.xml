@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AproManager</string>
+    <string name="clientID">718613752763-v72826m9hjgvqoe85cemoha1shsetmka.apps.googleusercontent.com</string>
+    <string name="dialog_start">User already exits. please log in to continue.</string>
+    <string name="OpenDrawer">Open navigation drawer</string>
+    <string name="CloseDrawer">Close navigation drawer</string>
+</resources>
