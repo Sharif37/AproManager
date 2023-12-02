@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="10dp"
+    >
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewToDo"
+        android:id="@+id/recyclerViewBoard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_alignParentEnd="true"
         android:scrollbars="vertical" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewDone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/recyclerViewToDo"
-        android:layout_marginTop="16dp"
-        android:scrollbars="vertical" />
 
-    <!-- Add FloatingActionButton for creating new tasks -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddTask"
+
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:src="@drawable/baseline_add_24" />
+        app:fab_addButtonColorNormal="@color/colorBrown"
+        app:fab_labelStyle="@style/floatingButton"
+        android:layout_margin="0dp"
+        >
+       <com.getbase.floatingactionbutton.FloatingActionButton
+           android:layout_height="wrap_content"
+           android:layout_width="wrap_content"
+           android:id="@+id/showAddBoard"
+           app:fab_icon="@drawable/kanban_9584543"
+           app:fab_title="add board"
+            app:fab_colorNormal="@color/colorBrown"
+           />
+        <com.getbase.floatingactionbutton.FloatingActionButton
+           android:layout_height="wrap_content"
+           android:layout_width="wrap_content"
+           android:id="@+id/showAddCard"
+           app:fab_icon="@drawable/card1"
+           app:fab_title="add card"
+            app:fab_colorNormal="@color/colorBrown"
+           />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </RelativeLayout>
