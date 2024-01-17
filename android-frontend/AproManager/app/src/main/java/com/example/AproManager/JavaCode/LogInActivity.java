@@ -20,6 +20,8 @@ import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
 
+import java.util.Objects;
+
 public class LogInActivity extends AppCompatActivity {
 
 
@@ -37,67 +39,70 @@ public class LogInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_log_in);
+        //setContentView(R.layout.activity_log_in);
         getSupportActionBar().hide();
 
-        loginWithgoogle = findViewById(R.id.card_google);
+        String userLogIn = GoogleOneTapUtils.getUserSession(this);
 
-        signup = findViewById(R.id.signUpText);
-        apiService = ApiService.getInstance();
-        userEmail=findViewById(R.id.email);
-        userPassword=findViewById(R.id.password);
-        logInBtn=findViewById(R.id.login_btn) ;
+        if (userLogIn != null) {
+            Intent intent = new Intent(this, Home.class);
+            startActivity(intent);
+            finish();
+        } else {
 
-
-        signup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(LogInActivity.this, signUpActivity.class);
-                startActivity(intent);
-            }
-        });
-        loginWithgoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                loadingSpinner.showLoadingSpinner(LogInActivity.this);
-
-                oneTapClient = Identity.getSignInClient(LogInActivity.this);
-
-                GoogleOneTapUtils.openOneTap(LogInActivity.this,REQ_ONE_TAP);
+            setContentView(R.layout.activity_log_in);
 
 
-                // GoogleOneTapUtils.startOneTapLogin(LogInActivity.this, oneTapClient, signInRequest, REQ_ONE_TAP);
+            loginWithgoogle = findViewById(R.id.card_google);
+            signup = findViewById(R.id.signUpText);
+            apiService = ApiService.getInstance();
+            userEmail = findViewById(R.id.email);
+            userPassword = findViewById(R.id.password);
+            logInBtn = findViewById(R.id.login_btn);
 
 
-            }
-        });
-        logInBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String email,password ;
-                email=userEmail.getText().toString();
-                password=userPassword.getText().toString();
-                if(GoogleOneTapUtils.isValidEmail(email))
-                {
-                    if(password.length()>=5)
-                    {
-                      GoogleOneTapUtils.login_usingPass(LogInActivity.this,email,password);
+            signup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(LogInActivity.this, signUpActivity.class);
+                    startActivity(intent);
+                }
+            });
 
-                    }else
-                    {
-                        Toast.makeText(LogInActivity.this, "password minimum length should 5", Toast.LENGTH_SHORT).show();
+            loginWithgoogle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    loadingSpinner.showLoadingSpinner(LogInActivity.this);
+
+                    oneTapClient = Identity.getSignInClient(LogInActivity.this);
+
+                    GoogleOneTapUtils.openOneTap(LogInActivity.this, REQ_ONE_TAP);
+
+                }
+            });
+            logInBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String email, password;
+                    email = userEmail.getText().toString();
+                    password = userPassword.getText().toString();
+                    if (GoogleOneTapUtils.isValidEmail(email)) {
+                        if (password.length() >= 5) {
+                            GoogleOneTapUtils.login_usingPass(LogInActivity.this, email, password);
+
+                        } else {
+                            Toast.makeText(LogInActivity.this, "password minimum length should 5", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } else {
+                        Toast.makeText(LogInActivity.this, "Email not valid", Toast.LENGTH_SHORT).show();
                     }
 
-                }else
-                {
-                    Toast.makeText(LogInActivity.this, "Email not valid", Toast.LENGTH_SHORT).show();
                 }
 
-            }
-
-        });
-
+            });
+        }
 
     }
     @Override
@@ -105,24 +110,22 @@ public class LogInActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
 
-        switch (requestCode) {
-            case REQ_ONE_TAP:
-                try {
-                    credential = oneTapClient.getSignInCredentialFromIntent(data);
-                    String idToken = credential.getGoogleIdToken();
-                    if (idToken != null) {
+        if (requestCode == REQ_ONE_TAP) {
+            try {
+                credential = oneTapClient.getSignInCredentialFromIntent(data);
+                String idToken = credential.getGoogleIdToken();
+                if (idToken != null) {
 
-                        String email = credential.getId();
-                       GoogleOneTapUtils.login_usingGoogle(LogInActivity.this,email);
+                    String email = credential.getId();
+                    GoogleOneTapUtils.login_usingGoogle(LogInActivity.this, email);
 
-                    }
-                } catch (ApiException e) {
-                    Log.e(TAG, "API exception: " + e.getStatusCode());
-                }finally {
-                    // Hide  spinner
-                    loadingSpinner.hideLoadingSpinner();
                 }
-                break;
+            } catch (ApiException e) {
+                Log.e(TAG, "API exception: " + e.getStatusCode());
+            } finally {
+                // Hide  spinner
+                loadingSpinner.hideLoadingSpinner();
+            }
         }
 
 

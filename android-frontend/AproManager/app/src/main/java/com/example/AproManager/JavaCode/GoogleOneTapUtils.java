@@ -4,9 +4,11 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -70,7 +72,7 @@ public class GoogleOneTapUtils {
             @Override
             public void onResponse(Call<UserData> call, Response<UserData> response) {
                 if (response.isSuccessful()) {
-                    if (response.body() != null) {
+                    if (response.body() != null && response.body().getEmail() !=null) {
                         showAlertDialog(activity);
                     } else {
                       storeData(activity,name,email,s,profileLink,formattedDate);
@@ -140,7 +142,7 @@ public class GoogleOneTapUtils {
 
 
 
-    public static void storeData(Activity activity, String name, String email, String password, String profileLink, String currentDate) {
+   /* public static void storeData(Activity activity, String name, String email, String password, String profileLink, String currentDate) {
         //user not present in database
 
         UserData userData = new UserData(name, email, profileLink, password, currentDate);
@@ -167,7 +169,50 @@ public class GoogleOneTapUtils {
             }
         });
 
+    }*/
+
+    public static void storeData(Activity activity, String name, String email, String password, String profileLink, String currentDate) {
+        UserData userData = new UserData(name, email, profileLink, password, currentDate);
+
+        ApiService.getInstance().signUp(userData, new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    // Store user session information
+                    saveUserSession(activity, email);
+
+                    Toast.makeText(activity, "Sign up successful", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(activity, Home.class);
+                    activity.startActivity(intent);
+                } else {
+                    Toast.makeText(activity, "Sign up failed. Error: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(activity, "Network request failed", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    // save user session
+    private static void saveUserSession(Activity activity, String userEmail) {
+        String sessionKey = "user_session";
+
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(sessionKey, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user_email", userEmail);
+        editor.apply();
+    }
+
+    // Method to retrieve user session information using SharedPreferences
+    public static String getUserSession(Activity activity) {
+        String sessionKey = "user_session";
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(sessionKey, Context.MODE_PRIVATE);
+        return sharedPreferences.getString("user_email", null);
+    }
+
     public static boolean isValidEmail(String email) {
         String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(regex);
