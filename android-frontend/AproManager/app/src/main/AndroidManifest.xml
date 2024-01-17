@@ -20,16 +20,19 @@
             android:exported="false" />
         <activity
             android:name=".JavaCode.LogInActivity"
-            android:exported="false"></activity>
-        <activity
-            android:name=".JavaCode.Home"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".JavaCode.Home"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+
         </activity>
         <activity
             android:name=".JavaCode.signUpActivity"

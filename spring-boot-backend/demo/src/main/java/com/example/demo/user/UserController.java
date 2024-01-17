@@ -13,24 +13,26 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/storeUserData")
+    @PostMapping("/Signup")
     public User storeUserData(@RequestBody User user) {
-        System.out.println(user.getProfileuri());
         return userService.createUser(user);
     }
 
-    @GetMapping("/getAllUsers")
+    @GetMapping("/showAllMember")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/check-user")
-    public boolean checkUser(@RequestParam String email) {
-        return userService.existsByEmail(email);
+
+
+    @GetMapping("/checkUser")
+    public User checkUser(@RequestParam String email) {
+        return userService.findByEmail(email);
     }
 
-    @GetMapping("/checkPasswordMatch")
-    public boolean checkPasswordMatch(@RequestParam String email, @RequestParam String password) {
-        return userService.checkPasswordMatch(email, password);
+    @GetMapping("/login")
+    public User checkPasswordMatch(@RequestParam String email, @RequestParam String password) {
+        return userService.authenticateUser(email,password);
     }
+
 }
