@@ -21,6 +21,10 @@ import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.common.api.ApiException;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class signUpActivity extends AppCompatActivity {
 
     Button signUp;
@@ -30,7 +34,7 @@ public class signUpActivity extends AppCompatActivity {
     private BeginSignInRequest signUpRequest;
     private static final int REQ_ONE_TAP = 3;
     SignInCredential credential ;
-    private boolean showOneTapUI = true;
+    private final boolean showOneTapUI = true;
     // UUID random ;
 
     ApiService apiService;
@@ -54,15 +58,8 @@ public class signUpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 loadingSpinner.showLoadingSpinner(signUpActivity.this);
                 oneTapClient = Identity.getSignInClient(signUpActivity.this);
-                BeginSignInRequest signInRequest = BeginSignInRequest.builder()
-                        .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                                .setSupported(true)
-                                .setServerClientId(getString(R.string.clientID))
-                                .setFilterByAuthorizedAccounts(false)
-                                .build())
-                        .build();
 
-                GoogleOneTapUtils.startOneTapLogin(signUpActivity.this, oneTapClient, signInRequest, REQ_ONE_TAP);
+                GoogleOneTapUtils.openOneTap(signUpActivity.this,REQ_ONE_TAP);
 
 
             }
@@ -77,7 +74,7 @@ public class signUpActivity extends AppCompatActivity {
                 {
                     if(password.length()>=5)
                     {
-                       checkUser(email,password,null);
+                    GoogleOneTapUtils.signup_usingPass(signUpActivity.this,email,password);
 
                     }else
                     {
@@ -105,18 +102,25 @@ public class signUpActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQ_ONE_TAP:
                 try {
+                    //Toast.makeText(this, "onActivityResult", Toast.LENGTH_SHORT).show();
                     credential = oneTapClient.getSignInCredentialFromIntent(data);
                     String idToken = credential.getGoogleIdToken();
                     if (idToken != null) {
-                        // Got an ID token from Google. Use it to authenticate
-                        // with your backend.
-                        // Toast.makeText(this, "got id token", Toast.LENGTH_SHORT).show();
-
-                        // Here, you can send the ID token to your backend for validation.
-
-                        // For example, you can create a UserData object and send it to the server:
                         String email = credential.getId();
-                        checkUser(email, null,credential);
+                        String name = credential.getDisplayName();
+                        assert credential.getProfilePictureUri() != null;
+                        String profileLink = credential.getProfilePictureUri().toString();
+                        //Log.d("profileLink",profileLink);
+                       // Toast.makeText(this, profileLink.length()+"", Toast.LENGTH_SHORT).show();
+                        long currentTimeMillis = System.currentTimeMillis();
+                        Date currentDate = new Date(currentTimeMillis);
+                        // Format the date
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                        String formattedDate = dateFormat.format(currentDate);
+
+
+                        GoogleOneTapUtils.signup_usingGoogle(this,name,email,"-1",profileLink,formattedDate);
+
                     }
                 } catch (ApiException e) {
                     Log.e(TAG, "API exception: " + e.getStatusCode());
@@ -128,9 +132,6 @@ public class signUpActivity extends AppCompatActivity {
 
     }
 
-    public void checkUser(String email,String password, SignInCredential credential) {
-        GoogleOneTapUtils.checkUser(this, apiService, email,password,credential);
-    }
 
 
 

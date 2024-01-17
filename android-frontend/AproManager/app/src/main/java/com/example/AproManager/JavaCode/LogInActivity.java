@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.AproManager.R;
-import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.identity.SignInCredential;
@@ -64,15 +63,12 @@ public class LogInActivity extends AppCompatActivity {
                 loadingSpinner.showLoadingSpinner(LogInActivity.this);
 
                 oneTapClient = Identity.getSignInClient(LogInActivity.this);
-                BeginSignInRequest signInRequest = BeginSignInRequest.builder()
-                        .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                                .setSupported(true)
-                                .setServerClientId(getString(R.string.clientID))
-                                .setFilterByAuthorizedAccounts(false)
-                                .build())
-                        .build();
 
-                GoogleOneTapUtils.startOneTapLogin(LogInActivity.this, oneTapClient, signInRequest, REQ_ONE_TAP);
+                GoogleOneTapUtils.openOneTap(LogInActivity.this,REQ_ONE_TAP);
+
+
+                // GoogleOneTapUtils.startOneTapLogin(LogInActivity.this, oneTapClient, signInRequest, REQ_ONE_TAP);
+
 
             }
         });
@@ -86,7 +82,7 @@ public class LogInActivity extends AppCompatActivity {
                 {
                     if(password.length()>=5)
                     {
-                      GoogleOneTapUtils.checkLogin(LogInActivity.this,apiService,email,password);
+                      GoogleOneTapUtils.login_usingPass(LogInActivity.this,email,password);
 
                     }else
                     {
@@ -117,7 +113,7 @@ public class LogInActivity extends AppCompatActivity {
                     if (idToken != null) {
 
                         String email = credential.getId();
-                       GoogleOneTapUtils.checkUser_login(LogInActivity.this,apiService,email);
+                       GoogleOneTapUtils.login_usingGoogle(LogInActivity.this,email);
 
                     }
                 } catch (ApiException e) {

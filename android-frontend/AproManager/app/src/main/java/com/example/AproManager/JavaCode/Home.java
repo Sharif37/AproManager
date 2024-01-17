@@ -11,8 +11,6 @@ import com.example.AproManager.R;
 import com.example.AproManager.kotlinCode.Board;
 import com.example.AproManager.kotlinCode.BoardAdapter;
 import com.example.AproManager.kotlinCode.CreateBoard;
-import com.example.AproManager.kotlinCode.WorkSpaceAdapter;
-import com.example.AproManager.kotlinCode.Workspace;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,8 +23,8 @@ import java.util.List;
 public class Home extends BaseActivity {
 
     private RecyclerView recyclerView;
-    private WorkSpaceAdapter workspaceAdapter;
-    private final List<Workspace> workspaceList = new ArrayList<>();
+    private BoardAdapter boardAdapter;
+    private final List<Board> boardList = new ArrayList<>();
 
     private FloatingActionButton addBoard, addCard;
     private static final int CREATE_BOARD_REQUEST = 123;
@@ -37,8 +35,8 @@ public class Home extends BaseActivity {
         addCard=findViewById(R.id.showAddCard);
         recyclerView=findViewById(R.id.recyclerViewBoard);
 
-        workspaceAdapter = new WorkSpaceAdapter(workspaceList);
-        recyclerView.setAdapter(workspaceAdapter);
+        boardAdapter= new BoardAdapter(boardList);
+        recyclerView.setAdapter(boardAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         addBoard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,18 +57,12 @@ public class Home extends BaseActivity {
 
             if (boardName != null && !boardName.isEmpty()) {
 
-                List<Board> boards1 = new ArrayList<>();
-                boards1.add(new Board("Board 1"));
-                boards1.add(new Board("Board 2"));
-                workspaceList.add(new Workspace("Workspace 1", boards1));
+                var newBoard = new Board(boardName);
+                boardList.add(newBoard);
+                boardAdapter.notifyDataSetChanged();
+                recyclerView.scrollToPosition(boardList.size() - 1);
 
-                List<Board> boards2 = new ArrayList<>();
-                boards2.add(new Board("Board 3"));
-                boards2.add(new Board("Board 4"));
-                workspaceList.add(new Workspace("Workspace 2", boards2));
-
-                workspaceAdapter.notifyDataSetChanged();
-
+               
 
             }
         }
