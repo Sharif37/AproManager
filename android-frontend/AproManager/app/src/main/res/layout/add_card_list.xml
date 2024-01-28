@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- dialog_add_card.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextListName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_list_name"
+        />
+
+    <Button
+        android:id="@+id/buttonAddCardList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_lists"/>
+
+</LinearLayout>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="20dp"
@@ -11,7 +12,7 @@
             android:id="@+id/editTextBoardName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Board Name"
+            android:hint="@string/board_name"
             android:padding="20dp"
             android:background="@drawable/border_background"
             android:maxLines="1"
@@ -32,9 +33,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Visibility: "
+                    android:text="@string/visibility"
                     android:textSize="20sp"
-                    android:layout_marginRight="8dp"/>
+                    android:layout_marginEnd="8dp"/>
 
                 <Spinner
                     android:id="@+id/spinnerVisibility"
@@ -50,16 +51,17 @@
             android:layout_below="@id/visibility"
             android:padding="10dp"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Board background "
-                    android:textSize="20dp"
+                    android:text="@string/board_background"
+                    android:textSize="20sp"
                     android:layout_gravity="start"
-                    android:layout_marginRight="8dp"/>
+                    android:layout_marginEnd="8dp"/>
 
                 <ImageView
                     android:id="@+id/backgroundImage"
@@ -67,7 +69,7 @@
                     android:layout_height="30dp"
                     android:layout_gravity="end"
                     android:src="@color/colorBlue"
-                    />
+                    android:contentDescription="@string/todo" />
         </LinearLayout>
 
 
@@ -76,7 +78,7 @@
             android:id="@+id/buttonCreateBoard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Board"
+            android:text="@string/create_board"
             android:enabled="false"
             android:layout_alignParentBottom="true"/>
 

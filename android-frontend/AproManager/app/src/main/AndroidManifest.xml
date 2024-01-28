@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -15,31 +18,74 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
-            android:name=".kotlinCode.CreateBoard"
-            android:windowSoftInputMode="adjustResize"
+            android:name=".kotlinCode.activities.CardActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".kotlinCode.activities.CreateBoardActivity"
+            android:label="@string/create_board_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />
         <activity
-            android:name=".JavaCode.LogInActivity"
-            android:exported="true">
+            android:name=".kotlinCode.activities.CardDetailsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+        <activity
+            android:name=".kotlinCode.activities.MembersActivity"
+            android:label="@string/members"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+        <activity
+            android:name=".kotlinCode.activities.MyProfileActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+           />
+        <activity
+            android:name=".kotlinCode.activities.TaskListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+        <activity
+            android:name=".kotlinCode.activities.BaseActivity"
+            android:exported="false" />
 
+        <activity
+            android:name=".kotlinCode.dialogs.CreateBoard"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".kotlinCode.activities.SplashActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".JavaCode.Home"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
-        </activity>
         <activity
-            android:name=".JavaCode.signUpActivity"
-            android:exported="false"></activity>
+            android:name=".kotlinCode.activities.SignInActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
-            android:name=".JavaCode.MainActivity"
-            android:exported="false"></activity>
+            android:name=".kotlinCode.activities.SignUpActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".kotlinCode.activities.IntroActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+        <activity
+            android:name=".kotlinCode.activities.MainActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
     </application>
 
 </manifest>
