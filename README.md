@@ -12,15 +12,13 @@ AproManager is an Agile project management application built for managing softwa
 
 4. **Collaboration**: Users can be added as members to cards, allowing them to stay updated on task progress.
 
-5. **Activity Tracking**: Any activity on a card, such as comments or checklist updates, is tracked and visible to users.
+5. **Archiving**: Cards can be archived when they are no longer relevant, removing them from the board view.
 
-6. **Archiving**: Cards can be archived when they are no longer relevant, removing them from the board view.
+6. **Labels**: Users can add card labels to categorize tasks. They can edit label names, and colors, and create new labels.
 
-7. **Labels**: Users can add card labels to categorize tasks. They can edit label names, and colors, and create new labels.
+7. **Due Dates and Reminders**: Cards can have due dates and reminder dates to ensure the timely completion of tasks.
 
-8. **Due Dates and Reminders**: Cards can have due dates and reminder dates to ensure the timely completion of tasks.
-
-9. **Attachments**: Users can attach files and pictures to cards for reference or additional information.
+8. **Attachments**: Users can attach files and pictures to cards for reference or additional information.
 
 ## Tech Stack
 
