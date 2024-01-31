@@ -70,15 +70,15 @@
         </activity>
 
         <activity
-            android:name=".kotlinCode.activities.SignInActivity"
+            android:name=".javaCode.Activities.SignInActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
-            android:name=".kotlinCode.activities.SignUpActivity"
+            android:name=".javaCode.Activities.SignUpActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
-            android:name=".kotlinCode.activities.IntroActivity"
+            android:name=".javaCode.Activities.IntroActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />

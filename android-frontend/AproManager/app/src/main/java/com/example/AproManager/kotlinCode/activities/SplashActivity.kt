@@ -7,6 +7,7 @@ import android.os.Handler
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.example.AproManager.databinding.ActivitySplashBinding
+import com.example.AproManager.javaCode.Activities.IntroActivity
 import com.example.AproManager.kotlinCode.activities.MainActivity
 import com.example.AproManager.kotlinCode.firebase.FirestoreClass
 

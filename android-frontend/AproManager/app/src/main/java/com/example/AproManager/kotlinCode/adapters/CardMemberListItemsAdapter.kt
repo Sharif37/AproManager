@@ -12,8 +12,7 @@ import com.example.AproManager.databinding.ItemCardSelectedMemberBinding
 import com.example.AproManager.kotlinCode.models.SelectedMembers
 
 
-// TODO (Step 2: Create a adapter class for selected members list.)
-// START
+
 open class CardMemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<SelectedMembers>

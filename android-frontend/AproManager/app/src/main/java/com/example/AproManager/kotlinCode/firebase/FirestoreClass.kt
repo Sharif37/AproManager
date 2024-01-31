@@ -8,8 +8,8 @@ import com.example.AproManager.kotlinCode.activities.CreateBoardActivity
 import com.example.AproManager.kotlinCode.activities.MainActivity
 import com.example.AproManager.kotlinCode.activities.MembersActivity
 import com.example.AproManager.kotlinCode.activities.MyProfileActivity
-import com.example.AproManager.kotlinCode.activities.SignInActivity
-import com.example.AproManager.kotlinCode.activities.SignUpActivity
+import com.example.AproManager.javaCode.Activities.SignInActivity
+import com.example.AproManager.javaCode.Activities.SignUpActivity
 import com.example.AproManager.kotlinCode.activities.TaskListActivity
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.User
@@ -250,7 +250,8 @@ class FirestoreClass {
             .whereIn(
                 Constants.ID,
                 assignedTo
-            ) // Here the database field name and the id's of the members.
+            )
+            // Here the database field name and the id's of the members.
             .get()
             .addOnSuccessListener { document ->
                 Log.e(activity.javaClass.simpleName, document.documents.toString())

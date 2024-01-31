@@ -301,7 +301,6 @@ class CardDetailsActivity : BaseActivity() {
         ) {
             override fun onItemSelected(user: User, action: String) {
 
-                // TODO (Step 5: Here based on the action in the members list dialog update the list.)
                 // START
                 if (action == Constants.SELECT) {
                     if (!mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.contains(
@@ -331,8 +330,7 @@ class CardDetailsActivity : BaseActivity() {
         listDialog.show()
     }
 
-// TODO (Step 3: Create a function to setup the recyclerView for card assigned members.)
-// START
+
     /**
      * A function to setup the recyclerView for card assigned members.
      */
@@ -381,5 +379,5 @@ class CardDetailsActivity : BaseActivity() {
             binding.rvSelectedMembersList.visibility = View.GONE
         }
     }
-// END
+
 }

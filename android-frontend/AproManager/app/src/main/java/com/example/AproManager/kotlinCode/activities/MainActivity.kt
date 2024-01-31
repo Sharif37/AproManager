@@ -15,6 +15,7 @@ import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityMainNewBinding
 import com.example.AproManager.databinding.AppBarMainBinding
 import com.example.AproManager.databinding.ContentMainBinding
+import com.example.AproManager.javaCode.Activities.SignInActivity
 import com.example.AproManager.kotlinCode.adapters.BoardItemsAdapter
 import com.example.AproManager.kotlinCode.firebase.FirestoreClass
 import com.example.AproManager.kotlinCode.models.Board
