@@ -1,7 +1,9 @@
 package com.example.AproManager.kotlinCode.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -23,6 +25,7 @@ import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -32,11 +35,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var contentMain: ContentMainBinding
     // A global variable for User Name
     private lateinit var mUserName: String
+    private lateinit var mSharedPreferences: SharedPreferences
 
-
-    /**
-     * This function is auto created by Android when the Activity Class is created.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         //This call the parent constructor
         super.onCreate(savedInstanceState)
@@ -54,13 +54,32 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Assign the NavigationView.OnNavigationItemSelectedListener to navigation view.
         binding.navView.setNavigationItemSelectedListener(this)
 
-        // Get the current logged in user details.
+
+
+
+
+        mSharedPreferences=this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE,
+            Context.MODE_PRIVATE)
+        val tokenUpdated=mSharedPreferences.getBoolean(Constants.Fcm_Token_Updated,false)
+        if(tokenUpdated){
+            showProgressDialog(resources.getString(R.string.please_wait))
+            FirestoreClass().loadUserData(this,true)
+
+        }else
+        {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                updateFCMToken(token)
+            }.addOnFailureListener { exception ->
+                Log.e("FCM Token", "Failed to retrieve FCM token: ${exception.message}")
+
+            }
+
+        }
+
+
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-
-
-        FirestoreClass()
-            .loadUserData(this@MainActivity, true)
+        FirestoreClass().loadUserData(this@MainActivity, true)
 
         appBarMainBinding.fabCreateBoard.setOnClickListener {
             val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
@@ -85,13 +104,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
                 startActivityForResult(
                     Intent(this@MainActivity, MyProfileActivity::class.java),
-                    MY_PROFILE_REQUEST_CODE
-                )
+                    MY_PROFILE_REQUEST_CODE)
             }
 
             R.id.nav_sign_out -> {
                 // Here sign outs the user from firebase in this device.
                 FirebaseAuth.getInstance().signOut()
+                mSharedPreferences.edit().clear().apply()
 
                 // Send the user to the intro screen of the application.
                 val intent = Intent(this, SignInActivity::class.java)
@@ -161,7 +180,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         // The instance of the user image of the navigation view.
         val navUserImage = headerView.findViewById<ImageView>(R.id.iv_user_image)
-        Log.d("UserProfileUri", "User Profile URI: ${user.image}")
+        //Log.d("UserProfileUri", "User Profile URI: ${user.image}")
 
         // Load the user image in the ImageView.
         Glide
@@ -214,6 +233,21 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             contentMain.rvBoardsList.visibility = View.GONE
             contentMain.tvNoBoardsAvailable.visibility = View.VISIBLE
         }
+    }
+
+    fun tokenUpdateSuccess() {
+        hideProgressDialog()
+        val editor:SharedPreferences.Editor=mSharedPreferences.edit()
+        editor.putBoolean(Constants.Fcm_Token_Updated,true)
+        editor.apply()
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().loadUserData(this,true)
+
+    }
+    fun updateFCMToken(token:String){
+        val userHashMap=HashMap<String,Any>()
+        userHashMap[Constants.Fcm_Token]=token
+      FirestoreClass().updateUserProfileData(this,userHashMap)
     }
 
     /**

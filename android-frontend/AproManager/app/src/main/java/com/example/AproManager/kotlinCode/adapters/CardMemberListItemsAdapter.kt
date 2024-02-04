@@ -16,31 +16,16 @@ import com.example.AproManager.kotlinCode.models.SelectedMembers
 open class CardMemberListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<SelectedMembers>
+    ,private val assignMembers:Boolean
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
 
-    /**
-     * Inflates the item views which is designed in xml layout file
-     *
-     * create a new
-     * {@link ViewHolder} and initializes some private fields to be used by RecyclerView.
-     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding= ItemCardSelectedMemberBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return MyViewHolder(binding)
     }
 
-    /**
-     * Binds each item in the ArrayList to a view
-     *
-     * Called when RecyclerView needs a new {@link ViewHolder} of the given type to represent
-     * an item.
-     *
-     * This new ViewHolder should be constructed with a new View that can represent the items
-     * of the given type. You can either create a new View manually or inflate it from an XML
-     * layout file.
-     */
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = list[position]
 
@@ -79,7 +64,7 @@ open class CardMemberListItemsAdapter(
      */
     inner class MyViewHolder(private val binding: ItemCardSelectedMemberBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(model: SelectedMembers) {
-            if (adapterPosition == list.size - 1) {
+            if (adapterPosition == list.size - 1 && assignMembers) {
                 binding.ivAddMember.visibility = View.VISIBLE
                 binding.ivSelectedMemberImage.visibility = View.GONE
             } else {
@@ -95,7 +80,9 @@ open class CardMemberListItemsAdapter(
             }
 
             binding.root.setOnClickListener {
-                onClickListener?.onClick()
+                if(onClickListener!=null) {
+                    onClickListener!!.onClick()
+                }
             }
         }
     }

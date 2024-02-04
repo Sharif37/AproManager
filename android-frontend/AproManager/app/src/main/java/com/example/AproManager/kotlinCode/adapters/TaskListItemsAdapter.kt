@@ -8,17 +8,21 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ItemTaskBinding
 import com.example.AproManager.kotlinCode.activities.TaskListActivity
+import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperAdapter
+import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperCallback
 import com.example.AproManager.kotlinCode.models.Task
+import java.util.Collections
 
 open class TaskListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<Task>
-) : RecyclerView.Adapter<TaskListItemsAdapter.MyViewHolder>() {
+) : RecyclerView.Adapter<TaskListItemsAdapter.MyViewHolder>()  {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -164,6 +168,8 @@ open class TaskListItemsAdapter(
             }
         }
     }
+
+
 
 }
 

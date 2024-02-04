@@ -13,9 +13,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.AproManager.R
+import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperAdapter
 import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperCallback
 
-class CardListAdapter : RecyclerView.Adapter<CardListAdapter.CardViewHolder>() {
+class CardListAdapter : RecyclerView.Adapter<CardListAdapter.CardViewHolder>(){
 
     private val cardList: MutableList<String> = mutableListOf()
 
