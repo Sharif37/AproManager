@@ -79,7 +79,7 @@
 
         <string name="str_select_member">Select Member</string>
     <string name="app_name">AproManager</string>
-
+    <string name="default_notification_channel_id">Notification channel id</string>
 
     <string-array name="visibility_options">
         <item>Workspace</item>

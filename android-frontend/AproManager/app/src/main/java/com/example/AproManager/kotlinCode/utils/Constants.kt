@@ -8,6 +8,8 @@ import android.webkit.MimeTypeMap
 
 object Constants {
 
+
+
     // Firebase Constants
     // This  is used for the collection name for USERS.
     const val USERS: String = "users"
@@ -34,6 +36,24 @@ object Constants {
 
     const val SELECT: String = "Select"
     const val UN_SELECT: String = "UnSelect"
+
+
+    //share preference
+    const val APROMANAGER_SHAREPREFERENCE="aproManagerPref"
+    const val Fcm_Token_Updated="fcmTokenUpdated"
+    const val Fcm_Token="fcmToken"
+
+    const val FCM_BASE_URL:String="https://fcm.googleapis.com/fcm/send"
+    const val FCM_AUTHORIZATION:String= "authorization"
+    const val FCM_KEY:String="key"
+    const val SERVER_KEY:String = "AAAAqbuk6bk:APA91bE4fQikr_ij0XjJQW5gmA2G1WpqEqpzX8nh74EudswKaot14u13x32u1pKSn2305I9Ne1Zd_lYNRiQYDl9j3QdZefFQ9mXT5pjOau2i50_cUptMXcljmSw__dgavFpjBBvG8eb4"
+    const val KEY_TITLE:String= "title"
+    const val KEY_MESSAGE:String = "message"
+    const val KEY_DATA:String = "data"
+    const val Key_TO:String="to"
+
+    // FCM token key
+    const val FCM_TOKEN = "fcm_token"
 
     //A unique code for asking the Read Storage Permission using this we will be check and identify in the method onRequestPermissionsResult
     const val READ_STORAGE_PERMISSION_CODE = 1
