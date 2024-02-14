@@ -79,7 +79,10 @@
 
         <string name="str_select_member">Select Member</string>
     <string name="app_name">AproManager</string>
-    <string name="default_notification_channel_id">Notification channel id</string>
+    <string name="default_notification_channel_id">appro_manager_notifications</string>
+    <string name="default_notification_channel_name">Appro Manager Notifications</string>
+    <string name="default_notification_channel_description">Channel for notifications from Appro Manager app</string>
+
 
     <string-array name="visibility_options">
         <item>Workspace</item>

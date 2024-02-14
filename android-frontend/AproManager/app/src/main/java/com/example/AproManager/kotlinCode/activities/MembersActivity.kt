@@ -198,14 +198,16 @@ class MembersActivity : BaseActivity() {
                 connection.setRequestProperty("Accept","application/json")
                 connection.setRequestProperty(Constants.FCM_AUTHORIZATION,"${Constants.FCM_KEY}=${Constants.SERVER_KEY}")
                 connection.useCaches=false
+
                 val wr=DataOutputStream(connection.outputStream)
                 val jsonRequest=JSONObject()
                 val dataObject=JSONObject()
-                dataObject.put(Constants.KEY_TITLE,"Assigned to the board $boardName")
-                dataObject.put(Constants.KEY_MESSAGE,"You have been Assigned to the Board"
+                dataObject.put(Constants.KEY_TITLE, "Assigned to the board \"$boardName\"")
+                dataObject.put(Constants.KEY_MESSAGE,"You have been Assigned to the Board "
                         + "by ${mAssignedMembersList[0].name}")
                 jsonRequest.put(Constants.KEY_DATA,dataObject)
                 jsonRequest.put(Constants.Key_TO,token)
+                Log.d("SendNotificationTask", "JSON Request: $jsonRequest")
 
                 wr.writeBytes(jsonRequest.toString())
                 wr.flush()
