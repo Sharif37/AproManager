@@ -23,13 +23,8 @@ import java.io.IOException
 class MyProfileActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMyProfileBinding
-    // Add a global variable for URI of a selected image from phone storage.
     private var mSelectedImageFileUri: Uri? = null
-
-    // A global variable for user details.
     private lateinit var mUserDetails: User
-
-    // A global variable for a user profile image URL
     private var mProfileImageURL: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,20 +45,17 @@ class MyProfileActivity : BaseActivity() {
             ) {
                 Constants.showImageChooser(this@MyProfileActivity)
             } else {
-                // Check if the permission should be requested again
                 if (ActivityCompat.shouldShowRequestPermissionRationale(
                         this,
                         Manifest.permission.READ_MEDIA_IMAGES
                     )
                 ) {
-                    // Permission has been denied previously, show rationale to the user
                     Toast.makeText(
                         this,
                         "Permission required to access images",
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    // Permission has not been requested before or permanently denied, request the permission
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
@@ -75,16 +67,12 @@ class MyProfileActivity : BaseActivity() {
 
 
         binding.btnUpdate.setOnClickListener {
-
-            // Here if the image is not selected then update the other details of user.
             if (mSelectedImageFileUri != null) {
 
                 uploadUserImage()
             } else {
 
                 showProgressDialog(resources.getString(R.string.please_wait))
-
-                // Call a function to update user details in the database.
                 updateUserProfileData()
             }
         }
@@ -96,7 +84,6 @@ class MyProfileActivity : BaseActivity() {
                 && requestCode == Constants.PICK_IMAGE_REQUEST_CODE
                 && data!!.data != null
         ) {
-            // The uri of selection image from phone storage.
             mSelectedImageFileUri = data.data!!
 
             try {
@@ -114,13 +101,6 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-    /**
-     * This function will identify the result of runtime permission after the user allows or deny permission based on the unique code.
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -132,7 +112,6 @@ class MyProfileActivity : BaseActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Constants.showImageChooser(this@MyProfileActivity)
             } else {
-                // Display a toast or take any other action when permission is not granted
                 Toast.makeText(
                     this,
                     "Oops, you just denied the permission for image access.",
@@ -142,10 +121,6 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-
-    /**
-     * A function to setup action bar
-     */
     private fun setupActionBar() {
 
         setSupportActionBar(binding.toolbarMyProfileActivity)
@@ -165,7 +140,6 @@ class MyProfileActivity : BaseActivity() {
      */
     fun setUserDataInUI(user: User) {
 
-        // Initialize the user details variable
         mUserDetails = user
 
         Glide
@@ -201,16 +175,10 @@ class MyProfileActivity : BaseActivity() {
             //adding the file to reference
             sRef.putFile(mSelectedImageFileUri!!)
                     .addOnSuccessListener { taskSnapshot ->
-                        // The image upload is success
-                        Log.e(
-                                "Firebase Image URL",
-                                taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
-                        )
-
                         // Get the downloadable url from the task snapshot
                         taskSnapshot.metadata!!.reference!!.downloadUrl
                                 .addOnSuccessListener { uri ->
-                                    Log.e("Downloadable Image URL", uri.toString())
+                                   // Log.e("Downloadable Image URL", uri.toString())
 
                                     // assign the image url to the variable.
                                     mProfileImageURL = uri.toString()

@@ -82,6 +82,14 @@
     <string name="default_notification_channel_id">appro_manager_notifications</string>
     <string name="default_notification_channel_name">Appro Manager Notifications</string>
     <string name="default_notification_channel_description">Channel for notifications from Appro Manager app</string>
+    <string name="write_a_comment">Write a comment…</string>
+    <string name="user_name">User name</string>
+    <string name="comments">comments</string>
+    <string name="like">Like</string>
+    <string name="dislike">Dislike</string>
+    <string name="_0">0</string>
+    <string name="timestamp">timeStamp</string>
+    <string name="comments_sections">Comments section</string>
 
 
     <string-array name="visibility_options">

@@ -86,7 +86,7 @@ class CreateBoardActivity : BaseActivity() {
 
                 showProgressDialog(resources.getString(R.string.please_wait))
 
-                // Call a function to update create a board.
+                //  update create a board.
                 createBoard()
             }
         }

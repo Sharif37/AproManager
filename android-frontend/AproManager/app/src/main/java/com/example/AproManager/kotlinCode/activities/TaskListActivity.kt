@@ -128,8 +128,8 @@ class TaskListActivity : BaseActivity() {
         val task = Task(taskListName,
             FirestoreClass().getCurrentUserID())
 
-        mBoardDetails.taskList.add(0, task) // Add task to the first position of ArrayList
-        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1) // Remove the last position as we have added the item manually for adding the TaskList.
+        mBoardDetails.taskList.add(task) // Add task to the first position of ArrayList
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 2) // Remove the last position as we have added the item manually for adding the TaskList.
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
@@ -218,6 +218,7 @@ class TaskListActivity : BaseActivity() {
      * A function for viewing and updating card details.
      */
     fun cardDetails(taskListPosition: Int, cardPosition: Int) {
+
         val intent = Intent(this@TaskListActivity, CardDetailsActivity::class.java)
         intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
@@ -256,7 +257,6 @@ class TaskListActivity : BaseActivity() {
     companion object {
         //A unique code for starting the activity for result
         const val MEMBERS_REQUEST_CODE: Int = 13
-
         const val CARD_DETAILS_REQUEST_CODE: Int = 14
     }
 }

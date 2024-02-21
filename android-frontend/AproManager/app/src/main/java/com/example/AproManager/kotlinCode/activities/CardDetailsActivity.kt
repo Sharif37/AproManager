@@ -1,23 +1,32 @@
 package com.example.AproManager.kotlinCode.activities
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Adapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityCardDetailsBinding
 import com.example.AproManager.kotlinCode.adapters.CardMemberListItemsAdapter
+import com.example.AproManager.kotlinCode.adapters.CommentAdapter
 import com.example.AproManager.kotlinCode.dialogs.LabelColorListDialog
 import com.example.AproManager.kotlinCode.dialogs.MembersListDialog
 import com.example.AproManager.kotlinCode.firebase.FirestoreClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.Card
+import com.example.AproManager.kotlinCode.models.Comments
 import com.example.AproManager.kotlinCode.models.SelectedMembers
 import com.example.AproManager.kotlinCode.models.Task
 import com.example.AproManager.kotlinCode.models.User
@@ -28,23 +37,29 @@ import java.util.Date
 import java.util.Locale
 
 
-class CardDetailsActivity : BaseActivity() {
+class CardDetailsActivity : BaseActivity(),CommentAdapter.OnLikeClickListener
+    {
 
 
     private lateinit var binding: ActivityCardDetailsBinding
-    // A global variable for board details
+    // board details
     private lateinit var mBoardDetails: Board
-    // A global variable for task item position
+    //  task item position
     private var mTaskListPosition: Int = -1
-    // A global variable for card item position
+    // card item position
     private var mCardPosition: Int = -1
-    // A global variable for selected label color
+    // selected label color
     private var mSelectedColor: String = ""
+    private lateinit var mUserName:String
 
-    // A global variable for Assigned Members List.
+    //  Assigned Members List.
     private lateinit var mMembersDetailList: ArrayList<User>
-
+     //Due date
     private var mSelectedDueDateMilliSeconds:Long=0
+
+    //comments
+    private var mCommentList: ArrayList<Comments> = ArrayList()
+    private lateinit var adapter:CommentAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +67,8 @@ class CardDetailsActivity : BaseActivity() {
         setContentView(binding.root)
 
         getIntentData()
-
         setupActionBar()
 
-        // The cursor after the string length
         binding.etNameCardDetails.setText(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name)
         binding.etNameCardDetails.setSelection(binding.etNameCardDetails.text.toString().length)
 
@@ -96,10 +109,40 @@ class CardDetailsActivity : BaseActivity() {
         binding.tvSelectDueDate.setOnClickListener{
             showDatePicker()
         }
+
+        //keep previous comments
+        mCommentList=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].commentList
+
+        binding.postComment.setOnClickListener{
+
+           val comment:String =binding.comment.text.toString()
+            val currentTime = Date()
+           // Toast.makeText(this,getUserName(),Toast.LENGTH_LONG).show()
+            val instanceOFComments=Comments(comment,getUserName(),currentTime)
+            mCommentList.add(instanceOFComments)
+            binding.comment.text.clear()
+
+            updateCardDetails();
+
+            updateUIWithComments();
+
+        }
+
+        updateUIWithComments();
+    }
+
+    private fun updateUIWithComments() {
+
+        binding.RecyclerviewComments.layoutManager=LinearLayoutManager(this)
+        binding.RecyclerviewComments.setHasFixedSize(true)
+        adapter=CommentAdapter(this,mCommentList,this)
+        binding.RecyclerviewComments.adapter=adapter
+
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        // Inflate the menu to use in the action bar
         menuInflater.inflate(R.menu.menu_delete_card, menu)
         return super.onCreateOptionsMenu(menu)
     }
@@ -142,7 +185,7 @@ class CardDetailsActivity : BaseActivity() {
             mCardPosition = intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1)
         }
         if (intent.hasExtra(Constants.BOARD_DETAIL)) {
-            mBoardDetails = intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!
+            mBoardDetails = intent.getParcelableExtra(Constants.BOARD_DETAIL)!!
         }
 
 
@@ -158,8 +201,8 @@ class CardDetailsActivity : BaseActivity() {
 
         hideProgressDialog()
 
-        setResult(Activity.RESULT_OK)
-        finish()
+        //setResult(Activity.RESULT_OK)
+        //finish()
     }
 
     /**
@@ -167,19 +210,26 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun updateCardDetails() {
 
-        // Here we have updated the card name using the data model class.
         val card = Card(
             binding.etNameCardDetails.text.toString(),
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
             mSelectedColor,
-            mSelectedDueDateMilliSeconds
+            mSelectedDueDateMilliSeconds,
+            mCommentList
         )
 
-        val taskList: ArrayList<Task> = mBoardDetails.taskList
-        taskList.removeAt(taskList.size - 1)
+        /*val taskList: ArrayList<Task> = mBoardDetails.taskList
+        taskList.removeAt(taskList.size - 1)*/
 
-        // Here we have assigned the update card details to the task list using the card position.
+
+        val taskList: ArrayList<Task> = mBoardDetails.taskList
+        if (taskList.isNotEmpty() && taskList.last().cards.isEmpty()) {
+            taskList.removeAt(taskList.size - 1)
+        }
+
+
+        //  update card details to the task list using the card position.
         mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card
 
         // Show the progress dialog.
@@ -215,7 +265,6 @@ class CardDetailsActivity : BaseActivity() {
         }
         // Create the AlertDialog
         val alertDialog: AlertDialog = builder.create()
-        // Set other dialog properties
         alertDialog.setCancelable(false) // Will not allow user to cancel after clicking on remaining screen area.
         alertDialog.show()  // show the dialog to UI
     }
@@ -225,9 +274,7 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun deleteCard() {
 
-        // Here we have got the cards list from the task item list using the task list position.
         val cardsList: ArrayList<Card> = mBoardDetails.taskList[mTaskListPosition].cards
-        // Here we will remove the item from cards list using the card position.
         cardsList.removeAt(mCardPosition)
 
         val taskList: ArrayList<Task> = mBoardDetails.taskList
@@ -292,12 +339,11 @@ class CardDetailsActivity : BaseActivity() {
      */
     private fun membersListDialog() {
 
-        // Here we get the updated assigned members list
+        // updated assigned members list
         val cardAssignedMembersList =
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
 
         if (cardAssignedMembersList.size > 0) {
-            // Here we got the details of assigned members list from the global members list which is passed from the Task List screen.
             for (i in mMembersDetailList.indices) {
                 for (j in cardAssignedMembersList) {
                     if (mMembersDetailList[i].id == j) {
@@ -348,10 +394,10 @@ class CardDetailsActivity : BaseActivity() {
         // Assigned members of the Card.
         val cardAssignedMembersList = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
 
-        // A instance of selected members list.
+        // selected members list.
         val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
 
-        // Here we got the detail list of members and add it to the selected members list as required.
+
         for (i in mMembersDetailList.indices) {
             for (j in cardAssignedMembersList) {
                 if (mMembersDetailList[i].id == j) {
@@ -367,7 +413,7 @@ class CardDetailsActivity : BaseActivity() {
 
         if (selectedMembersList.size > 0) {
 
-            // This is for the last item to show.
+            // last item to show.
             selectedMembersList.add(SelectedMembers("", ""))
 
             binding.tvSelectMembers.visibility = View.GONE
@@ -395,7 +441,7 @@ class CardDetailsActivity : BaseActivity() {
         val day = c.get(Calendar.DAY_OF_MONTH)
         val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, year, month, dayOfMonth ->
             val sDayOfMonth = if (dayOfMonth < 10) "0${dayOfMonth}" else "$dayOfMonth"
-            val sMonthOfYear = if ((month + 1) < 10) "0${month + 1}" else "${month + 1}" // month should be incremented by 1 to represent correct month
+            val sMonthOfYear = if ((month + 1) < 10) "0${month + 1}" else "${month + 1}"
             val selectedDate = "${sDayOfMonth}/${sMonthOfYear}/${year}"
             binding.tvSelectDueDate.text = selectedDate
 
@@ -407,7 +453,27 @@ class CardDetailsActivity : BaseActivity() {
         dpd.show()
     }
 
+        @SuppressLint("NotifyDataSetChanged")
+        override fun onLikeClick(position: Int, likeCountTextView: TextView) {
+
+
+                val comment = mCommentList[position]
+                val userId = getCurrentUserID()
+
+                if (comment.likedBy.contains(userId) && comment.likedBy.isNotEmpty()) {
+                    comment.likedBy.remove(userId)
+                } else {
+                    comment.likedBy.add(userId)
+                }
+
+                val likeCount = comment.likedBy.size
+                likeCountTextView.text = likeCount.toString()
+                likeCountTextView.visibility = if (likeCount > 0) View.VISIBLE else View.INVISIBLE
+                updateCardDetails()
+
+        }
 
 
 
-}
+
+    }
