@@ -38,11 +38,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var mSharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //This call the parent constructor
         super.onCreate(savedInstanceState)
-
-        // This is used to align the xml view to this class
-
         binding=ActivityMainNewBinding.inflate(layoutInflater)
         appBarMainBinding = binding.AppBarMain
         contentMain=binding.AppBarMain.contentMain
@@ -54,15 +50,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         // Assign the NavigationView.OnNavigationItemSelectedListener to navigation view.
         binding.navView.setNavigationItemSelectedListener(this)
 
-
-
-
-
         mSharedPreferences=this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE,
             Context.MODE_PRIVATE)
         val tokenUpdated=mSharedPreferences.getBoolean(Constants.Fcm_Token_Updated,false)
         if(tokenUpdated){
-            showProgressDialog(resources.getString(R.string.please_wait))
+            //showProgressDialog(resources.getString(R.string.please_wait))
             FirestoreClass().loadUserData(this,true)
 
         }else

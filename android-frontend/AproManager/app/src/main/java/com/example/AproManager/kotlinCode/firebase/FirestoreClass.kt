@@ -1,6 +1,7 @@
 package com.example.AproManager.kotlinCode.firebase
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import com.example.AproManager.kotlinCode.activities.CardDetailsActivity
@@ -14,6 +15,7 @@ import com.example.AproManager.kotlinCode.activities.TaskListActivity
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
+import com.example.AproManager.kotlinCode.utils.Constants.APROMANAGER_SHAREPREFERENCE
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -68,6 +70,7 @@ class FirestoreClass {
 
                 // Here we have received the document snapshot which is converted into the User Data model object.
                 val loggedInUser = document.toObject(User::class.java)!!
+                 saveCaches(activity,loggedInUser.name,loggedInUser.image)
 
                 // Here call a function of base activity for transferring the result to it.
                 when (activity) {
@@ -83,7 +86,6 @@ class FirestoreClass {
                 }
             }
             .addOnFailureListener { e ->
-                // Here call a function of base activity for transferring the result to it.
                 when (activity) {
                     is SignInActivity -> {
                         activity.hideProgressDialog()
@@ -94,6 +96,7 @@ class FirestoreClass {
                     is MyProfileActivity -> {
                         activity.hideProgressDialog()
                     }
+
                 }
                 Log.e(
                     activity.javaClass.simpleName,
@@ -154,7 +157,7 @@ class FirestoreClass {
             .document()
             .set(board, SetOptions.merge())
             .addOnSuccessListener {
-                Log.e(activity.javaClass.simpleName, "Board created successfully.")
+                //Log.e(activity.javaClass.simpleName, "Board created successfully.")
 
                 Toast.makeText(activity, "Board created successfully.", Toast.LENGTH_SHORT).show()
 
@@ -239,7 +242,7 @@ class FirestoreClass {
             .document(board.documentId)
             .update(taskListHashMap)
             .addOnSuccessListener {
-                Log.e(activity.javaClass.simpleName, "TaskList updated successfully.")
+               // Log.e(activity.javaClass.simpleName, "TaskList updated successfully.")
 
                 if (activity is TaskListActivity) {
                     activity.addUpdateTaskListSuccess()
@@ -250,7 +253,7 @@ class FirestoreClass {
             .addOnFailureListener { e ->
                 if (activity is TaskListActivity) {
                     activity.hideProgressDialog()
-                } else if (activity is TaskListActivity) {
+                } else if (activity is CardDetailsActivity) {
                     activity.hideProgressDialog()
                 }
                 Log.e(activity.javaClass.simpleName, "Error while creating a board.", e)
@@ -275,7 +278,6 @@ class FirestoreClass {
                 val usersList: ArrayList<User> = ArrayList()
 
                 for (i in document.documents) {
-                    // Convert all the document snapshot to the object using the data model class.
                     val user = i.toObject(User::class.java)!!
                     usersList.add(user)
                 }
@@ -369,4 +371,16 @@ class FirestoreClass {
 
         return currentUserID
     }
+
+    private fun saveCaches(activity: Activity, userName: String,uri:String) {
+        val sharedPrefs = activity.getSharedPreferences(APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        editor.putString(Constants.User_Name, userName)
+        editor.putString(Constants.profileUri,uri)
+        editor.apply()
+    }
+
+
+
+
 }

@@ -1,6 +1,8 @@
 package com.example.AproManager.kotlinCode.activities
 
+import android.app.Activity
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.widget.TextView
@@ -8,6 +10,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.AproManager.R
+import com.example.AproManager.kotlinCode.utils.Constants
+import com.example.AproManager.kotlinCode.utils.Constants.APROMANAGER_SHAREPREFERENCE
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
@@ -32,6 +36,12 @@ open class BaseActivity: AppCompatActivity() {
 
     fun getCurrentUserID(): String {
         return FirebaseAuth.getInstance().currentUser!!.uid
+    }
+
+
+    fun getUserName(): String {
+        val sharedPrefs = this.getSharedPreferences(APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+        return sharedPrefs.getString(Constants.User_Name, "") ?: ""
     }
     fun doubleBackToExit() {
         if (doubleBackToExitPressedOnce) {
@@ -61,5 +71,7 @@ open class BaseActivity: AppCompatActivity() {
         )
         snackBar.show()
     }
+
+
 
 }
