@@ -10,12 +10,12 @@ import com.bumptech.glide.Glide
 import com.example.AproManager.R
 import com.example.AproManager.databinding.CommentItemsBinding
 import com.example.AproManager.kotlinCode.models.Comments
-import com.example.AproManager.kotlinCode.utils.Constants
 
 open class CommentAdapter(
     private  val context: Context,
     private var commentList:ArrayList<Comments>,
-    private val likeClickListener: OnLikeClickListener
+    private val likeClickListener: OnClickListener,
+    private val dislikeClickListener: OnClickListener
     ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -40,13 +40,11 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
 
     inner class CommentViewHolder(private val binding: CommentItemsBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        val sharedPrefs = context.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
-        private val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
 
         fun bind(model: Comments) {
             Glide
                 .with(context)
-                .load(profileUri)
+                .load(model.userProfileUri)
                 .centerCrop()
                 .placeholder(R.drawable.ic_user_place_holder)
                 .into(binding.ivProfileUserImage)
@@ -86,14 +84,18 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
             binding.likeButton.setOnClickListener {
                 likeClickListener.onLikeClick(adapterPosition,binding.likeCount)
             }
+            binding.dislikeButton.setOnClickListener{
+                dislikeClickListener.onDisLikeClick(adapterPosition,binding.dislikeCount)
+            }
 
 
         }
     }
 
 
-    interface OnLikeClickListener {
+    interface OnClickListener {
         fun onLikeClick(position: Int, likeCountTextView: TextView)
+        fun onDisLikeClick(position: Int, disLikeCountTextView: TextView)
     }
 
 

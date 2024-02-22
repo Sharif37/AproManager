@@ -8,6 +8,7 @@ import java.util.Date
 data class Comments(var comment: String="",
                     var commentBy:String ="",
                     val timeStamp: Date= Date(),
+                    var userProfileUri:String="",
       var likedBy: ArrayList<String> = ArrayList(),
       var dislikedBy:ArrayList<String> = ArrayList()
 ):Parcelable {
@@ -15,6 +16,7 @@ data class Comments(var comment: String="",
         source.readString()!!,
         source.readString()!!,
         source.readSerializable() as Date,
+        source.readString()!!,
         source.createStringArrayList()!!,
         source.createStringArrayList()!!
 
@@ -29,6 +31,7 @@ data class Comments(var comment: String="",
         dest.writeString(comment)
         dest.writeString(commentBy)
         dest.writeSerializable(timeStamp)
+        dest.writeString(userProfileUri)
         dest.writeStringList(likedBy)
         dest.writeStringList(dislikedBy)
     }

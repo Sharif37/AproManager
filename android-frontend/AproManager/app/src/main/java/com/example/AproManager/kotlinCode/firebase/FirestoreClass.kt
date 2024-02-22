@@ -36,13 +36,10 @@ class FirestoreClass {
     fun registerUser(activity: SignUpActivity, userInfo: User) {
 
         mFireStore.collection(Constants.USERS)
-            // Document ID for users fields. Here the document it is the User ID.
             .document(getCurrentUserID())
-            // Here the userInfo are Field and the SetOption is set to merge. It is for if we wants to merge
             .set(userInfo, SetOptions.merge())
             .addOnSuccessListener {
 
-                // Here call a function of base activity for transferring the result to it.
                 activity.userRegisteredSuccess()
             }
             .addOnFailureListener { e ->
@@ -70,7 +67,7 @@ class FirestoreClass {
 
                 // Here we have received the document snapshot which is converted into the User Data model object.
                 val loggedInUser = document.toObject(User::class.java)!!
-                 saveCaches(activity,loggedInUser.name,loggedInUser.image)
+                saveCaches(activity,loggedInUser.name,loggedInUser.image)
 
                 // Here call a function of base activity for transferring the result to it.
                 when (activity) {
@@ -242,7 +239,7 @@ class FirestoreClass {
             .document(board.documentId)
             .update(taskListHashMap)
             .addOnSuccessListener {
-               // Log.e(activity.javaClass.simpleName, "TaskList updated successfully.")
+                // Log.e(activity.javaClass.simpleName, "TaskList updated successfully.")
 
                 if (activity is TaskListActivity) {
                     activity.addUpdateTaskListSuccess()

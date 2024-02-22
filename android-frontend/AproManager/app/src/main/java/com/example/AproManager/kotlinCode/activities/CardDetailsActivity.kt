@@ -3,20 +3,17 @@ package com.example.AproManager.kotlinCode.activities
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Adapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityCardDetailsBinding
 import com.example.AproManager.kotlinCode.adapters.CardMemberListItemsAdapter
@@ -37,7 +34,7 @@ import java.util.Date
 import java.util.Locale
 
 
-class CardDetailsActivity : BaseActivity(),CommentAdapter.OnLikeClickListener
+class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     {
 
 
@@ -112,13 +109,15 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnLikeClickListener
 
         //keep previous comments
         mCommentList=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].commentList
+        val sharedPrefs = this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+        val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
 
         binding.postComment.setOnClickListener{
 
            val comment:String =binding.comment.text.toString()
             val currentTime = Date()
            // Toast.makeText(this,getUserName(),Toast.LENGTH_LONG).show()
-            val instanceOFComments=Comments(comment,getUserName(),currentTime)
+            val instanceOFComments=Comments(comment,getUserName(),currentTime,profileUri)
             mCommentList.add(instanceOFComments)
             binding.comment.text.clear()
 
@@ -135,7 +134,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnLikeClickListener
 
         binding.RecyclerviewComments.layoutManager=LinearLayoutManager(this)
         binding.RecyclerviewComments.setHasFixedSize(true)
-        adapter=CommentAdapter(this,mCommentList,this)
+        adapter=CommentAdapter(this,mCommentList,this,this)
         binding.RecyclerviewComments.adapter=adapter
 
 
@@ -201,7 +200,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnLikeClickListener
 
         hideProgressDialog()
 
-        //setResult(Activity.RESULT_OK)
+        setResult(Activity.RESULT_OK)
         //finish()
     }
 
@@ -460,18 +459,50 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnLikeClickListener
                 val comment = mCommentList[position]
                 val userId = getCurrentUserID()
 
-                if (comment.likedBy.contains(userId) && comment.likedBy.isNotEmpty()) {
+            if (!comment.dislikedBy.contains(userId) ) {
+                if(comment.likedBy.contains(userId)) {
                     comment.likedBy.remove(userId)
-                } else {
+                }else{
                     comment.likedBy.add(userId)
                 }
+            } else {
+                //users already give dislike . do nothing
+            }
 
                 val likeCount = comment.likedBy.size
+               if(likeCount>0)
                 likeCountTextView.text = likeCount.toString()
                 likeCountTextView.visibility = if (likeCount > 0) View.VISIBLE else View.INVISIBLE
                 updateCardDetails()
+            adapter.notifyDataSetChanged()
 
         }
+
+        @SuppressLint("NotifyDataSetChanged")
+        override fun onDisLikeClick(position: Int, disLikeCountTextView: TextView) {
+
+
+            val comment = mCommentList[position]
+            val userId = getCurrentUserID()
+
+            if (!comment.likedBy.contains(userId) ) {
+                if(comment.dislikedBy.contains(userId)) {
+                    comment.dislikedBy.remove(userId)
+                }else{
+                    comment.dislikedBy.add(userId)
+                }
+            } else {
+                //users already give like . do nothing
+            }
+
+            val dislikeCount = comment.dislikedBy.size
+            disLikeCountTextView.text = dislikeCount.toString()
+            disLikeCountTextView.visibility = if (dislikeCount > 0) View.VISIBLE else View.INVISIBLE
+            updateCardDetails()
+            adapter.notifyDataSetChanged()
+
+        }
+
 
 
 

@@ -24,8 +24,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignInActivity extends BaseActivity {
     private EditText etEmail, etPassword;
-    private Toolbar toolbar;
-    private Button btnSignIn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,8 +39,8 @@ public class SignInActivity extends BaseActivity {
 
         etEmail = findViewById(R.id.et_email);
         etPassword = findViewById(R.id.et_password);
-        btnSignIn = findViewById(R.id.btn_sign_in);
-        toolbar = findViewById(R.id.toolbar_sign_in_activity);
+        Button btnSignIn = findViewById(R.id.btn_sign_in);
+        // Toolbar toolbar = findViewById(R.id.toolbar_sign_in_activity);
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,8 +67,9 @@ public class SignInActivity extends BaseActivity {
                             new FirestoreClass().loadUserData(SignInActivity.this,false);
                         } else {
                             Toast.makeText(SignInActivity.this,
-                                    task.getException().getMessage(),
+                                   "user not registered.",
                                     Toast.LENGTH_LONG).show();
+                            hideProgressDialog();
                         }
                     });
         }
