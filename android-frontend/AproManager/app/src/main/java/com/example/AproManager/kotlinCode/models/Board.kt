@@ -8,7 +8,7 @@ data class Board(
     val image: String = "",
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),
-    var documentId: String = "",
+    var boardId: String = "",
     var taskList: ArrayList<Task> = ArrayList(),
 ) : Parcelable {
     constructor(source: Parcel) : this(
@@ -28,7 +28,7 @@ data class Board(
         writeString(image)
         writeString(createdBy)
         writeStringList(assignedTo)
-        writeString(documentId)
+        writeString(boardId)
         writeTypedList(taskList)
 
     }

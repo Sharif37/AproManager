@@ -8,14 +8,6 @@
     >
 
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="1"
-    android:orientation="vertical"
-
-    >
-
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,12 +21,22 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <ScrollView
-        android:id="@+id/cardDetails"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/cardDetailsScrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layout_constraintBottom_toTopOf="@+id/comment_react_layout"
+        app:layout_constraintTop_toTopOf="parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:orientation="vertical"
+
+    >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -194,12 +196,12 @@
 
 
     </LinearLayout>
-    </ScrollView>
+
 </LinearLayout>
 
 
 
-
+    </androidx.core.widget.NestedScrollView>
 
         <LinearLayout
             android:id="@+id/comment_react_layout"

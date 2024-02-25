@@ -5,37 +5,34 @@ import android.os.Parcelable
 import com.google.android.gms.common.internal.safeparcel.SafeParcelWriter.writeStringList
 import java.util.Date
 
-data class Comments(var comment: String="",
-                    var commentBy:String ="",
-                    val timeStamp: Date= Date(),
-                    var userProfileUri:String="",
-      var likedBy: ArrayList<String> = ArrayList(),
-      var dislikedBy:ArrayList<String> = ArrayList()
-):Parcelable {
+data class Comments(
+    var comment: String = "",
+    var commentBy: String = "",
+    val timeStamp: Long = System.currentTimeMillis(),
+    var userProfileUri: String = "",
+    var likedBy: ArrayList<String> = ArrayList(),
+    var dislikedBy: ArrayList<String> = ArrayList()
+) : Parcelable {
+
     constructor(source: Parcel) : this(
         source.readString()!!,
         source.readString()!!,
-        source.readSerializable() as Date,
+        source.readLong(),
         source.readString()!!,
         source.createStringArrayList()!!,
         source.createStringArrayList()!!
-
     )
 
-
-    override fun describeContents(): Int {
-     return 0 ;
-    }
+    override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(comment)
         dest.writeString(commentBy)
-        dest.writeSerializable(timeStamp)
+        dest.writeLong(timeStamp)
         dest.writeString(userProfileUri)
         dest.writeStringList(likedBy)
         dest.writeStringList(dislikedBy)
     }
-
 
     companion object {
         @JvmField
@@ -44,5 +41,5 @@ data class Comments(var comment: String="",
             override fun newArray(size: Int): Array<Comments?> = arrayOfNulls(size)
         }
     }
-
 }
+

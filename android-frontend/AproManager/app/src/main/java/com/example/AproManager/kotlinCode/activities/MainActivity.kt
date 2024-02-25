@@ -19,7 +19,7 @@ import com.example.AproManager.databinding.AppBarMainBinding
 import com.example.AproManager.databinding.ContentMainBinding
 import com.example.AproManager.javaCode.Activities.SignInActivity
 import com.example.AproManager.kotlinCode.adapters.BoardItemsAdapter
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
@@ -55,7 +55,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val tokenUpdated=mSharedPreferences.getBoolean(Constants.Fcm_Token_Updated,false)
         if(tokenUpdated){
             //showProgressDialog(resources.getString(R.string.please_wait))
-            FirestoreClass().loadUserData(this,true)
+            FirebaseDatabaseClass().loadUserData(this,true)
 
         }else
         {
@@ -71,7 +71,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().loadUserData(this@MainActivity, true)
+        FirebaseDatabaseClass().loadUserData(this@MainActivity, true)
 
         appBarMainBinding.fabCreateBoard.setOnClickListener {
             val intent = Intent(this@MainActivity, CreateBoardActivity::class.java)
@@ -122,12 +122,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             && requestCode == MY_PROFILE_REQUEST_CODE
         ) {
             // Get the user updated details.
-            FirestoreClass().loadUserData(this@MainActivity)
+            FirebaseDatabaseClass().loadUserData(this@MainActivity)
         } else if (resultCode == Activity.RESULT_OK
             && requestCode == CREATE_BOARD_REQUEST_CODE
         ) {
             // Get the latest boards list.
-            FirestoreClass().getBoardsList(this@MainActivity)
+            FirebaseDatabaseClass().getBoardsList(this@MainActivity)
         } else {
             Log.e("Cancelled", "Cancelled")
         }
@@ -190,7 +190,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if (readBoardsList) {
             // Show the progress dialog.
             showProgressDialog(resources.getString(R.string.please_wait))
-            FirestoreClass().getBoardsList(this@MainActivity)
+            FirebaseDatabaseClass().getBoardsList(this@MainActivity)
         }
     }
 
@@ -217,7 +217,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 BoardItemsAdapter.OnClickListener {
                 override fun onClick(position: Int, model: Board) {
                     val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-                    intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
+                    intent.putExtra(Constants.DOCUMENT_ID, model.boardId)
                     startActivity(intent)
                 }
             })
@@ -233,13 +233,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         editor.putBoolean(Constants.Fcm_Token_Updated,true)
         editor.apply()
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().loadUserData(this,true)
+        FirebaseDatabaseClass().loadUserData(this,true)
 
     }
-    fun updateFCMToken(token:String){
+    private fun updateFCMToken(token:String){
         val userHashMap=HashMap<String,Any>()
         userHashMap[Constants.Fcm_Token]=token
-      FirestoreClass().updateUserProfileData(this,userHashMap)
+      FirebaseDatabaseClass().updateUserProfileData(this,userHashMap)
     }
 
     /**

@@ -8,15 +8,11 @@ import android.content.Intent
 import android.graphics.Color
 import android.media.RingtoneManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.AproManager.R
 import com.example.AproManager.javaCode.Activities.SignInActivity
 import com.example.AproManager.kotlinCode.activities.MainActivity
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -51,7 +47,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun sendNotification(title: String, message: String) {
         val intent = Intent(applicationContext,
-            if (FirestoreClass().getCurrentUserID().isNotEmpty())
+            if (FirebaseDatabaseClass().getCurrentUserID().isNotEmpty())
                 MainActivity::class.java
             else
             SignInActivity::class.java)

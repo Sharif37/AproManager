@@ -4,15 +4,17 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.AproManager.R
 import com.example.AproManager.databinding.CommentItemsBinding
+import com.example.AproManager.kotlinCode.activities.BaseActivity
 import com.example.AproManager.kotlinCode.models.Comments
 
 open class CommentAdapter(
-    private  val context: Context,
+    private  val context: Context,private val currentUserId:String,
     private var commentList:ArrayList<Comments>,
     private val likeClickListener: OnClickListener,
     private val dislikeClickListener: OnClickListener
@@ -52,7 +54,7 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
             binding.CommentedUserName.text = model.commentBy
             binding.UserComments.text = model.comment
 
-            val commentTimestamp = model.timeStamp.time
+            val commentTimestamp = model.timeStamp
             val currentTime = System.currentTimeMillis()
             val timeDifference = currentTime - commentTimestamp
 
@@ -77,15 +79,28 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
             binding.commentTime.text = timeAgoText
 
            val likeCount=model.likedBy.size
+           val dislikeCount=model.dislikedBy.size
+
+            if(model.likedBy.contains(currentUserId)){
+                binding.likeButton.setImageResource(R.drawable.thum_up_after_liked)
+            }
+            if(model.dislikedBy.contains(currentUserId)){
+                binding.dislikeButton.setImageResource(R.drawable.baseline_thumb_down_after_dislike_24)
+            }
             if(likeCount>0) {
                 binding.likeCount.text = likeCount.toString()
                 binding.likeCount.visibility =View.VISIBLE
             }
+            if(dislikeCount>0){
+                binding.dislikeCount.text = dislikeCount.toString()
+                binding.dislikeCount.visibility =View.VISIBLE
+
+            }
             binding.likeButton.setOnClickListener {
-                likeClickListener.onLikeClick(adapterPosition,binding.likeCount)
+                likeClickListener.onLikeClick(adapterPosition,binding.likeCount,binding.likeButton)
             }
             binding.dislikeButton.setOnClickListener{
-                dislikeClickListener.onDisLikeClick(adapterPosition,binding.dislikeCount)
+                dislikeClickListener.onDisLikeClick(adapterPosition,binding.dislikeCount,binding.dislikeButton)
             }
 
 
@@ -94,8 +109,8 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
 
 
     interface OnClickListener {
-        fun onLikeClick(position: Int, likeCountTextView: TextView)
-        fun onDisLikeClick(position: Int, disLikeCountTextView: TextView)
+        fun onLikeClick(position: Int, likeCountTextView: TextView,likeButton:ImageButton)
+        fun onDisLikeClick(position: Int, disLikeCountTextView: TextView,dislikeButton:ImageButton)
     }
 
 

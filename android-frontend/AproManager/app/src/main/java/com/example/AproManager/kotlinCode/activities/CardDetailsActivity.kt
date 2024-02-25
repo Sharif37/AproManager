@@ -6,9 +6,11 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -20,7 +22,7 @@ import com.example.AproManager.kotlinCode.adapters.CardMemberListItemsAdapter
 import com.example.AproManager.kotlinCode.adapters.CommentAdapter
 import com.example.AproManager.kotlinCode.dialogs.LabelColorListDialog
 import com.example.AproManager.kotlinCode.dialogs.MembersListDialog
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.Card
 import com.example.AproManager.kotlinCode.models.Comments
@@ -28,6 +30,10 @@ import com.example.AproManager.kotlinCode.models.SelectedMembers
 import com.example.AproManager.kotlinCode.models.Task
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -35,8 +41,9 @@ import java.util.Locale
 
 
 class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
-    {
+{
 
+    private val mDatabase = FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
     private lateinit var binding: ActivityCardDetailsBinding
     // board details
@@ -47,16 +54,18 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     private var mCardPosition: Int = -1
     // selected label color
     private var mSelectedColor: String = ""
-    private lateinit var mUserName:String
 
     //  Assigned Members List.
     private lateinit var mMembersDetailList: ArrayList<User>
-     //Due date
+    //Due date
     private var mSelectedDueDateMilliSeconds:Long=0
 
     //comments
     private var mCommentList: ArrayList<Comments> = ArrayList()
     private lateinit var adapter:CommentAdapter
+    private var boardId=""
+    private var cardId=""
+    private var taskId=""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +90,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
         setupSelectedMembersList()
 
-       //if due date in database , set it
+        //if due date in database , set it
         mSelectedDueDateMilliSeconds=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].dueDate
         if(mSelectedDueDateMilliSeconds >0){
             val simpleDateFormat=SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
@@ -109,36 +118,73 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
         //keep previous comments
         mCommentList=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].commentList
-        val sharedPrefs = this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
-        val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
+        initRecyclerView()
 
         binding.postComment.setOnClickListener{
-
-           val comment:String =binding.comment.text.toString()
-            val currentTime = Date()
-           // Toast.makeText(this,getUserName(),Toast.LENGTH_LONG).show()
-            val instanceOFComments=Comments(comment,getUserName(),currentTime,profileUri)
-            mCommentList.add(instanceOFComments)
-            binding.comment.text.clear()
-
-            updateCardDetails();
-
-            updateUIWithComments();
-
+            postComment()
         }
 
-        updateUIWithComments();
+
+         boardId= mBoardDetails.boardId
+         listenForCommentUpdates(boardId,mTaskListPosition,mCardPosition) { updatedCommentList ->
+            updateCommentListUI(updatedCommentList)
+        }
+
+
     }
 
-    private fun updateUIWithComments() {
 
-        binding.RecyclerviewComments.layoutManager=LinearLayoutManager(this)
-        binding.RecyclerviewComments.setHasFixedSize(true)
-        adapter=CommentAdapter(this,mCommentList,this,this)
-        binding.RecyclerviewComments.adapter=adapter
+    private fun listenForCommentUpdates(boardId: String, taskId: Int, cardId: Int,callback: (ArrayList<Comments>) -> Unit) {
+        val database =mDatabase
+        val boardsRef = database.getReference("boards")
+        val boardRef = boardsRef.child(boardId)
+        val taskListRef = boardRef.child("taskList").child(taskId.toString())
+        val cardRef = taskListRef.child("cards").child(cardId.toString())
 
 
+        cardRef.child("commentList").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val updatedCommentList: ArrayList<Comments> = ArrayList()
+                for (commentSnapshot in dataSnapshot.children) {
+                    val comment = commentSnapshot.getValue(Comments::class.java) ?: continue
+                    updatedCommentList.add(comment)
+                }
+                callback(updatedCommentList)
+            }
 
+            override fun onCancelled(databaseError: DatabaseError) {
+
+            }
+        })
+    }
+
+    private fun updateCommentListInDatabase() {
+        FirebaseDatabaseClass().updateCommentListInDatabase( boardId,mTaskListPosition,mCardPosition,mCommentList)
+    }
+
+    private fun initRecyclerView() {
+        binding.RecyclerviewComments.layoutManager = LinearLayoutManager(this)
+        adapter = CommentAdapter(this, getCurrentUserID(), mCommentList, this, this)
+        binding.RecyclerviewComments.adapter = adapter
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun postComment() {
+        val commentText = binding.comment.text.toString()
+
+        val sharedPrefs = this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+        val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
+        if (commentText.isNotEmpty()) {
+            val currentTime = Date().time
+            val instanceOfComment = Comments(commentText, getUserName(), currentTime, profileUri)
+            mCommentList.add(instanceOfComment)
+            binding.comment.text.clear()
+            adapter.notifyDataSetChanged()
+           updateCommentListInDatabase()
+        } else {
+            Toast.makeText(this@CardDetailsActivity, "Enter a comment.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -210,30 +256,25 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     private fun updateCardDetails() {
 
         val card = Card(
+            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].cardId,
             binding.etNameCardDetails.text.toString(),
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
             mSelectedColor,
-            mSelectedDueDateMilliSeconds,
-            mCommentList
+            mSelectedDueDateMilliSeconds
         )
-
-        /*val taskList: ArrayList<Task> = mBoardDetails.taskList
-        taskList.removeAt(taskList.size - 1)*/
-
 
         val taskList: ArrayList<Task> = mBoardDetails.taskList
         if (taskList.isNotEmpty() && taskList.last().cards.isEmpty()) {
             taskList.removeAt(taskList.size - 1)
         }
 
-
-        //  update card details to the task list using the card position.
         mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
+
+        FirebaseDatabaseClass()
             .addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
     }
 
@@ -283,7 +324,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
     }
 
@@ -452,59 +493,79 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
         dpd.show()
     }
 
-        @SuppressLint("NotifyDataSetChanged")
-        override fun onLikeClick(position: Int, likeCountTextView: TextView) {
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onLikeClick(position: Int, likeCountTextView: TextView,likeButton:ImageButton) {
 
 
-                val comment = mCommentList[position]
-                val userId = getCurrentUserID()
+        val comment = mCommentList[position]
+        val userId = getCurrentUserID()
 
-            if (!comment.dislikedBy.contains(userId) ) {
-                if(comment.likedBy.contains(userId)) {
-                    comment.likedBy.remove(userId)
-                }else{
-                    comment.likedBy.add(userId)
-                }
-            } else {
-                //users already give dislike . do nothing
+        if (!comment.dislikedBy.contains(userId) ) {
+            if(comment.likedBy.contains(userId)) {
+                comment.likedBy.remove(userId)
+                likeButton.setImageResource(R.drawable.baseline_thumb_up_24)
+            }else{
+                comment.likedBy.add(userId)
+
+                likeButton.setImageResource(R.drawable.thum_up_after_liked)
             }
-
-                val likeCount = comment.likedBy.size
-               if(likeCount>0)
-                likeCountTextView.text = likeCount.toString()
-                likeCountTextView.visibility = if (likeCount > 0) View.VISIBLE else View.INVISIBLE
-                updateCardDetails()
-            adapter.notifyDataSetChanged()
-
+        } else {
+            //users already give dislike . do nothing
         }
 
-        @SuppressLint("NotifyDataSetChanged")
-        override fun onDisLikeClick(position: Int, disLikeCountTextView: TextView) {
+        val likeCount = comment.likedBy.size
+        if(likeCount>0)
 
-
-            val comment = mCommentList[position]
-            val userId = getCurrentUserID()
-
-            if (!comment.likedBy.contains(userId) ) {
-                if(comment.dislikedBy.contains(userId)) {
-                    comment.dislikedBy.remove(userId)
-                }else{
-                    comment.dislikedBy.add(userId)
-                }
-            } else {
-                //users already give like . do nothing
-            }
-
-            val dislikeCount = comment.dislikedBy.size
-            disLikeCountTextView.text = dislikeCount.toString()
-            disLikeCountTextView.visibility = if (dislikeCount > 0) View.VISIBLE else View.INVISIBLE
-            updateCardDetails()
-            adapter.notifyDataSetChanged()
-
-        }
-
-
-
-
+            likeCountTextView.text = likeCount.toString()
+        likeCountTextView.visibility = if (likeCount > 0) View.VISIBLE else View.INVISIBLE
+        updateCommentListInDatabase()
+        adapter.notifyDataSetChanged()
 
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onDisLikeClick(position: Int, disLikeCountTextView: TextView,dislikeButton:ImageButton) {
+
+
+        val comment = mCommentList[position]
+        val userId = getCurrentUserID()
+
+        if (!comment.likedBy.contains(userId) ) {
+            if(comment.dislikedBy.contains(userId)) {
+                comment.dislikedBy.remove(userId)
+                dislikeButton.setImageResource(R.drawable.baseline_thumb_down_24)
+            }else{
+                comment.dislikedBy.add(userId)
+                dislikeButton.setImageResource(R.drawable.baseline_thumb_down_after_dislike_24)
+            }
+        } else {
+            //users already give like . do nothing
+        }
+
+        val dislikeCount = comment.dislikedBy.size
+        disLikeCountTextView.text = dislikeCount.toString()
+        disLikeCountTextView.visibility = if (dislikeCount > 0) View.VISIBLE else View.INVISIBLE
+        updateCommentListInDatabase()
+        adapter.notifyDataSetChanged()
+
+    }
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateCommentListUI(updatedCommentList: ArrayList<Comments>) {
+        // Update the local comment list
+        mCommentList.clear()
+        mCommentList.addAll(updatedCommentList)
+
+        // Notify the adapter that the dataset has changed
+        adapter.notifyDataSetChanged()
+
+        // Scroll the RecyclerView to the bottom to show the latest comment
+        binding.RecyclerviewComments.scrollToPosition(adapter.itemCount - 1)
+
+    }
+
+
+
+
+}

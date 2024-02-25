@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityTaskListBinding
 import com.example.AproManager.kotlinCode.adapters.TaskListItemsAdapter
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.Card
 import com.example.AproManager.kotlinCode.models.Task
@@ -42,7 +42,7 @@ class TaskListActivity : BaseActivity() {
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .getBoardDetails(this@TaskListActivity, mBoardDocumentId)
     }
 
@@ -90,7 +90,7 @@ class TaskListActivity : BaseActivity() {
         ) {
             // Show the progress dialog.
             showProgressDialog(resources.getString(R.string.please_wait))
-           FirestoreClass()
+           FirebaseDatabaseClass()
                .getBoardDetails(this@TaskListActivity, mBoardDocumentId)
         } else {
             Log.e("Cancelled", "Cancelled")
@@ -111,7 +111,7 @@ class TaskListActivity : BaseActivity() {
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-       FirestoreClass().getAssignedMembersListDetails(
+       FirebaseDatabaseClass().getAssignedMembersListDetails(
             this@TaskListActivity,
             mBoardDetails.assignedTo
         )
@@ -125,15 +125,16 @@ class TaskListActivity : BaseActivity() {
         Log.e("Task List Name", taskListName)
 
         // Create and Assign the task details
-        val task = Task(taskListName,
-            FirestoreClass().getCurrentUserID())
+        val taskId = System.currentTimeMillis().toString()
+        val task = Task(taskId,taskListName,
+            FirebaseDatabaseClass().getCurrentUserID())
 
         mBoardDetails.taskList.add(task) // Add task to the first position of ArrayList
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 2) // Remove the last position as we have added the item manually for adding the TaskList.
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-       FirestoreClass()
+       FirebaseDatabaseClass()
            .addUpdateTaskList(this@TaskListActivity, mBoardDetails)
     }
 
@@ -149,7 +150,7 @@ class TaskListActivity : BaseActivity() {
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .addUpdateTaskList(this@TaskListActivity, mBoardDetails)
     }
 
@@ -164,7 +165,7 @@ class TaskListActivity : BaseActivity() {
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .addUpdateTaskList(this@TaskListActivity, mBoardDetails)
     }
 
@@ -178,8 +179,8 @@ class TaskListActivity : BaseActivity() {
         // Here get the updated board details.
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
-            .getBoardDetails(this@TaskListActivity, mBoardDetails.documentId)
+        FirebaseDatabaseClass()
+            .getBoardDetails(this@TaskListActivity, mBoardDetails.boardId)
     }
 
     /**
@@ -192,15 +193,15 @@ class TaskListActivity : BaseActivity() {
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
         cardAssignedUsersList.add(
-            FirestoreClass().getCurrentUserID())
-
-        val card = Card(cardName, FirestoreClass()
+            FirebaseDatabaseClass().getCurrentUserID())
+        val cardId = System.currentTimeMillis().toString()
+        val card = Card(cardId,cardName, FirebaseDatabaseClass()
             .getCurrentUserID(), cardAssignedUsersList)
 
         val cardsList = mBoardDetails.taskList[position].cards
         cardsList.add(card)
 
-        val task = Task(
+        val task = Task(mBoardDetails.taskList[position].taskId,
                 mBoardDetails.taskList[position].title,
                 mBoardDetails.taskList[position].createdBy,
                 cardsList
@@ -210,7 +211,7 @@ class TaskListActivity : BaseActivity() {
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .addUpdateTaskList(this@TaskListActivity, mBoardDetails)
     }
 
@@ -248,6 +249,22 @@ class TaskListActivity : BaseActivity() {
         val adapter = TaskListItemsAdapter(this@TaskListActivity, mBoardDetails.taskList)
         binding.rvTaskList.adapter = adapter // Attach the adapter to the recyclerView.
 
+
+    }
+
+
+    fun updateTaskListUI(updatedTaskList: ArrayList<Task>) {
+
+        binding.rvTaskList.layoutManager =
+            LinearLayoutManager(this@TaskListActivity, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvTaskList.setHasFixedSize(true)
+
+        // Create an instance of TaskListItemsAdapter and pass the task list to it.
+        val adapter = TaskListItemsAdapter(this@TaskListActivity, updatedTaskList)
+        binding.rvTaskList.adapter = adapter // Attach the adapter to the recyclerView.
+
+
+        adapter.notifyDataSetChanged()
 
     }
 
