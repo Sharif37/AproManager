@@ -1,7 +1,6 @@
 
 package com.example.AproManager.javaCode.Activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -12,12 +11,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
+
+import com.google.firebase.FirebaseApp;
+
 
 import com.example.AproManager.R;
 import com.example.AproManager.kotlinCode.activities.BaseActivity;
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass;
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass;
 import com.example.AproManager.kotlinCode.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,12 +27,15 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class SignUpActivity extends BaseActivity {
     private EditText etName, etEmail, etPassword;
-    private Button btnSignUp;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up_new);
+
+        FirebaseApp.initializeApp(this);
+
+
 
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -44,7 +47,7 @@ public class SignUpActivity extends BaseActivity {
         etName = findViewById(R.id.et_name);
         etEmail = findViewById(R.id.et_email);
         etPassword = findViewById(R.id.et_password);
-        btnSignUp = findViewById(R.id.btn_sign_up);
+        Button btnSignUp = findViewById(R.id.btn_sign_up);
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,11 +76,12 @@ public class SignUpActivity extends BaseActivity {
 
                             if (task.isSuccessful()) {
                                 FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                                assert firebaseUser != null;
                                 String registeredEmail = firebaseUser.getEmail();
 
                                 User user = new User(firebaseUser.getUid(), name, registeredEmail, "", 0, "", false);
 
-                                FirestoreClass firestoreClass = new FirestoreClass();
+                                FirebaseDatabaseClass firestoreClass = new FirebaseDatabaseClass();
                                 //TODO handle user registration
                                 firestoreClass.registerUser(SignUpActivity.this, user);
                             } else {

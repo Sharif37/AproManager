@@ -10,8 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivitySplashBinding
 import com.example.AproManager.javaCode.Activities.IntroActivity
-import com.example.AproManager.kotlinCode.activities.MainActivity
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 
 
 class SplashActivity : AppCompatActivity() {
@@ -38,7 +37,7 @@ class SplashActivity : AppCompatActivity() {
 
         Handler().postDelayed({
 
-            val currentUserID = FirestoreClass().getCurrentUserID()
+            val currentUserID = FirebaseDatabaseClass().getCurrentUserID()
             if (currentUserID.isNotEmpty()) {
                 startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             } else {
@@ -46,6 +45,6 @@ class SplashActivity : AppCompatActivity() {
                 startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
             }
             finish()
-        }, 2000)
+        }, 200)
     }
 }

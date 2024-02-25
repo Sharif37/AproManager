@@ -6,14 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityMyProfileBinding
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
@@ -34,7 +33,7 @@ class MyProfileActivity : BaseActivity() {
 
         setupActionBar()
 
-        FirestoreClass().loadUserData(this@MyProfileActivity)
+        FirebaseDatabaseClass().loadUserData(this@MyProfileActivity)
 
         binding.ivProfileUserImage.setOnClickListener {
 
@@ -220,7 +219,7 @@ class MyProfileActivity : BaseActivity() {
         }
 
         // Update the data in the database.
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .updateUserProfileData(this@MyProfileActivity, userHashMap)
     }
 

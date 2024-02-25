@@ -11,15 +11,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.AproManager.R;
 import com.example.AproManager.kotlinCode.activities.BaseActivity;
 import com.example.AproManager.kotlinCode.activities.MainActivity;
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass;
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass;
 import com.example.AproManager.kotlinCode.models.User;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SignInActivity extends BaseActivity {
@@ -64,7 +61,7 @@ public class SignInActivity extends BaseActivity {
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            new FirestoreClass().loadUserData(SignInActivity.this,false);
+                            new FirebaseDatabaseClass().loadUserData(SignInActivity.this,false);
                         } else {
                             Toast.makeText(SignInActivity.this,
                                    "user not registered.",

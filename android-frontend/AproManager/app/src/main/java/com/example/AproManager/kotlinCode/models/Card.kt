@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Card(
+    val cardId: String = "",
     val name: String = "",
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),
@@ -12,6 +13,7 @@ data class Card(
     var commentList: ArrayList<Comments> = ArrayList(),
 ) : Parcelable {
     constructor(source: Parcel) : this(
+        source.readString()!!,
         source.readString()!!,
         source.readString()!!,
         source.createStringArrayList()!!,
@@ -23,6 +25,7 @@ data class Card(
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(cardId)
         writeString(name)
         writeString(createdBy)
         writeStringList(assignedTo)

@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityCreateBoardNewBinding
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
@@ -214,14 +214,16 @@ class CreateBoardActivity : BaseActivity() {
         getCurrentUserID().let { assignedUsersArrayList.add(it) } // adding the current user id.
 
         // Creating the instance of the Board and adding the values as per parameters.
+        val boardId = System.currentTimeMillis().toString()
         val board = Board(
             binding.etBoardName.text.toString(),
             mBoardImageURL,
             mUserName,
-            assignedUsersArrayList
+            assignedUsersArrayList,
+            boardId
         )
 
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .createBoard(this@CreateBoardActivity, board)
     }
 

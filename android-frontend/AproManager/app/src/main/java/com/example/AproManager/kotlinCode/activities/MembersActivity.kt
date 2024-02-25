@@ -13,7 +13,7 @@ import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityMembersBinding
 import com.example.AproManager.databinding.DialogSearchMemberBinding
 import com.example.AproManager.kotlinCode.adapters.MemberListItemsAdapter
-import com.example.AproManager.kotlinCode.firebase.FirestoreClass
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
@@ -54,7 +54,7 @@ class MembersActivity : BaseActivity() {
 
         // Show the progress dialog.
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getAssignedMembersListDetails(
+        FirebaseDatabaseClass().getAssignedMembersListDetails(
             this@MembersActivity,
             mBoardDetails.assignedTo
         )
@@ -136,7 +136,7 @@ class MembersActivity : BaseActivity() {
 
                 // Show the progress dialog.
                 showProgressDialog(resources.getString(R.string.please_wait))
-                FirestoreClass()
+                FirebaseDatabaseClass()
                     .getMemberDetails(this@MembersActivity, email)
             } else {
                 showErrorSnackBar("Please enter members email address.")
@@ -158,7 +158,7 @@ class MembersActivity : BaseActivity() {
 
         mBoardDetails.assignedTo.add(user.id)
 
-        FirestoreClass()
+        FirebaseDatabaseClass()
             .assignMemberToBoard(this@MembersActivity, mBoardDetails, user)
     }
 
