@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/move_card"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/boardTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_list"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:padding="8dp"/>
+
+    <Spinner
+        android:id="@+id/boardSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:prompt="@string/select_board"/>
+
+    <TextView
+        android:id="@+id/positionTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_position"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:padding="8dp"/>
+
+    <Spinner
+        android:id="@+id/positionSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:prompt="@string/select_position"/>
+
+</LinearLayout>

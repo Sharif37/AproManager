@@ -1,27 +1,25 @@
 package com.example.AproManager.kotlinCode.adapters
 
-import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.AproManager.R
-import com.example.AproManager.databinding.ItemBoardNewBinding
 import com.example.AproManager.databinding.ItemCardNewBinding
 import com.example.AproManager.kotlinCode.activities.TaskListActivity
-import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperAdapter
+import com.example.AproManager.kotlinCode.dialogs.MoveCardDialogFragment
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.Card
 import com.example.AproManager.kotlinCode.models.SelectedMembers
-import java.util.Collections
-import java.util.Objects
 
 open class CardListItemsAdapter(
-    private val context: Context,
-    private var list: ArrayList<Card>
+    private val context: TaskListActivity,
+    private val fragmentManager: FragmentManager,
+    private var list: ArrayList<Card>,
+    private var board: Board,
+    val bindingTaskPosition: Int
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
@@ -62,6 +60,11 @@ open class CardListItemsAdapter(
      */
     interface OnClickListener {
         fun onClick(cardPosition: Int)
+    }
+
+    private fun showMoveCardDialog(taskPosition: Int, cardPosition: Int) {
+        val moveCardDialog = MoveCardDialogFragment(context,board, taskPosition, cardPosition)
+        moveCardDialog.show(fragmentManager, "MoveCardDialog")
     }
 
     /**
@@ -127,6 +130,16 @@ open class CardListItemsAdapter(
 
             binding.root.setOnClickListener {
                 onClickListener?.onClick(adapterPosition)
+            }
+
+
+            binding.root.setOnLongClickListener {
+                val cardPosition = bindingAdapterPosition
+                if (cardPosition != RecyclerView.NO_POSITION) {
+                    showMoveCardDialog(bindingTaskPosition,cardPosition)
+                    return@setOnLongClickListener true
+                }
+                return@setOnLongClickListener false
             }
         }
     }

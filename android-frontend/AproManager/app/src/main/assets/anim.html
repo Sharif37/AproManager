@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: linear-gradient(to bottom right, #ff7e5f, #feb47b);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #container {
+            text-align: center;
+        }
+        #logo {
+            width: 200px;
+            opacity: 0; /* Initially hidden */
+        }
+        #appName {
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0; /* Initially hidden */
+            margin-top: 20px;
+            font-family: 'Carbon BL', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <img id="logo" src="" alt="App Logo">
+    <div id="appName">Apro Manager</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+<script>
+    function setLogoSrc() {
+        var logoImg = document.getElementById("logo");
+        logoImg.src = "file:///android_asset/logo.png";
+    }
+
+    setLogoSrc();
+
+    // Animation for rotating logo
+    gsap.to("#logo", {
+        duration: 3,
+        rotate: 360, // Rotate 360 degrees
+        opacity: 1, // Fade in during rotation
+        ease: "linear", // Use linear easing function
+        onComplete: function() { // Callback function when animation completes
+            gsap.to("#logo", { // Additional animation to make it stay after rotating
+                duration: 0, // No duration, just set the final state
+                rotate: 360 // Ensure the logo stays in place
+            });
+        }
+    });
+
+    // Animation for app name fade in
+    gsap.to("#appName", {
+        duration: 1.5,
+        delay: 3, // Delay to start after the logo rotation animation
+        opacity: 1, // Fade in
+        ease: "power1.inOut" // Use power1 easing function
+    });
+</script>
+</body>
+</html>

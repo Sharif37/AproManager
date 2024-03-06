@@ -1,11 +1,14 @@
 package com.example.AproManager.kotlinCode.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
+import android.webkit.WebChromeClient
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivitySplashBinding
@@ -17,23 +20,26 @@ class SplashActivity : AppCompatActivity() {
 
 
     private lateinit var binding:ActivitySplashBinding
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         binding=ActivitySplashBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+
+
+
+        binding.webView.settings.javaScriptEnabled=true
+        binding.webView.webViewClient = WebViewClient()
+        binding.webView.webChromeClient = WebChromeClient()
+        binding.webView.loadUrl("file:///android_asset/anim.html")
 
          window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        val typeface: Typeface =
-            Typeface.createFromAsset(assets, "carbon bl.ttf")
-        binding.tvAppName.typeface = typeface
 
-        val logoAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-        binding.logoImageView.startAnimation(logoAnimation)
-        binding.tvAppName.startAnimation(logoAnimation)
 
         Handler().postDelayed({
 
@@ -45,6 +51,6 @@ class SplashActivity : AppCompatActivity() {
                 startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
             }
             finish()
-        }, 200)
+        }, 5000)
     }
 }
