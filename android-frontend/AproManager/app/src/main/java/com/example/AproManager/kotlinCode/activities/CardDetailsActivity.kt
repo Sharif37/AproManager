@@ -64,8 +64,6 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     private var mCommentList: ArrayList<Comments> = ArrayList()
     private lateinit var adapter:CommentAdapter
     private var boardId=""
-    private var cardId=""
-    private var taskId=""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

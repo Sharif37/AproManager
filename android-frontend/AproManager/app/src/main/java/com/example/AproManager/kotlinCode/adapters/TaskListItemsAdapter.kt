@@ -8,21 +8,20 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.AproManager.R
 import com.example.AproManager.databinding.ItemTaskBinding
 import com.example.AproManager.kotlinCode.activities.TaskListActivity
-import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperAdapter
-import com.example.AproManager.kotlinCode.dragAndDrop.ItemTouchHelperCallback
+import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.Task
-import java.util.Collections
 
 open class TaskListItemsAdapter(
-    private val context: Context,
-    private var list: ArrayList<Task>
-) : RecyclerView.Adapter<TaskListItemsAdapter.MyViewHolder>()  {
+    private val context: TaskListActivity,
+    private val fragmentManager: FragmentManager,
+    val board: Board
+) : RecyclerView.Adapter<TaskListItemsAdapter.MyViewHolder>() {
+    var list=board.taskList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -35,8 +34,10 @@ open class TaskListItemsAdapter(
         return MyViewHolder(binding)
     }
 
+
+
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(list[position])
+        holder.bind(list[position],board)
     }
 
     override fun getItemCount(): Int {
@@ -70,9 +71,9 @@ open class TaskListItemsAdapter(
 
 
     inner class MyViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(task: Task) {
+        fun bind(task: Task, board: Board) {
             with(binding) {
-                if (adapterPosition == list.size - 1) {
+                if (bindingAdapterPosition == list.size - 1) {
                     tvAddTaskList.visibility = View.VISIBLE
                     llTaskItem.visibility = View.GONE
                 } else {
@@ -119,7 +120,7 @@ open class TaskListItemsAdapter(
                     val listName = etEditTaskListName.text.toString()
                     if (listName.isNotEmpty()) {
                         if (context is TaskListActivity) {
-                            context.updateTaskList(adapterPosition, listName, task)
+                            context.updateTaskList(bindingAdapterPosition, listName, task)
                         }
                     } else {
                         Toast.makeText(context, "Please Enter List Name.", Toast.LENGTH_SHORT).show()
@@ -127,7 +128,7 @@ open class TaskListItemsAdapter(
                 }
 
                 ibDeleteList.setOnClickListener {
-                    alertDialogForDeleteList(adapterPosition, task.title)
+                    alertDialogForDeleteList(bindingAdapterPosition, task.title)
                 }
 
                 tvAddCard.setOnClickListener {
@@ -143,7 +144,7 @@ open class TaskListItemsAdapter(
                         val cardName = etCardName.text.toString()
                         if (cardName.isNotEmpty()) {
                             if (context is TaskListActivity) {
-                                context.addCardToTaskList(adapterPosition, cardName)
+                                context.addCardToTaskList(bindingAdapterPosition, cardName)
                             }
                         } else {
                             Toast.makeText(context, "Please Enter Card Detail.", Toast.LENGTH_SHORT).show()
@@ -154,19 +155,26 @@ open class TaskListItemsAdapter(
                 rvCardList.layoutManager = LinearLayoutManager(context)
                 rvCardList.setHasFixedSize(true)
 
-                val adapter = CardListItemsAdapter(context, task.cards)
+                val adapter = CardListItemsAdapter(context,fragmentManager,task.cards, board,bindingAdapterPosition)
                 rvCardList.adapter = adapter
 
                 adapter.setOnClickListener(object :
                     CardListItemsAdapter.OnClickListener {
                     override fun onClick(cardPosition: Int) {
                         if (context is TaskListActivity) {
-                            context.cardDetails(adapterPosition, cardPosition)
+                            context.cardDetails(bindingAdapterPosition, cardPosition)
                         }
                     }
                 })
+
+
+
+
             }
         }
+
+
+
     }
 
 

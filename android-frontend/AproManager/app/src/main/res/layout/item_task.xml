@@ -119,7 +119,8 @@
                     android:contentDescription="@string/image_contentDescription"
                     android:padding="@dimen/task_item_image_buttons_padding"
                     android:src="@drawable/ic_delete" />
-            </LinearLayout>
+
+                </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
