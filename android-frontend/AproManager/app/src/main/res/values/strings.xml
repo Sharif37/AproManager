@@ -105,6 +105,13 @@
     <string name="rate_our_app">Rate out App\n</string>
     <string name="submit">submit\n</string>
     <string name="thank_you">thank you</string>
+    <string name="nav_about_us">About us</string>
+    <string name="nav_rate_app">Rate App</string>
+    <string name="ratings_and_reviews">Ratings and reviews</string>
+    <string name="_4_1">4.1</string>
+    <string name="_1">1</string>
+    <string name="our_office_location">Our Office Location</string>
+    <string name="our_info">About Us</string>
 
 
 </resources>

@@ -1,6 +1,7 @@
 package com.example.AproManager.kotlinCode.activities
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,8 +9,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -21,11 +25,17 @@ import com.example.AproManager.javaCode.Activities.SignInActivity
 import com.example.AproManager.kotlinCode.adapters.BoardItemsAdapter
 import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
+import com.example.AproManager.kotlinCode.models.Comments
+import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.android.material.navigation.NavigationView
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
+import java.util.Date
+import java.util.UUID
 
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -36,6 +46,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     // A global variable for User Name
     private lateinit var mUserName: String
     private lateinit var mSharedPreferences: SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +89,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             intent.putExtra(Constants.NAME, mUserName)
             startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
         }
+
+
     }
 
     override fun onBackPressed() {
@@ -98,6 +111,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     Intent(this@MainActivity, MyProfileActivity::class.java),
                     MY_PROFILE_REQUEST_CODE)
             }
+            R.id.nav_about_us -> {
+                   startActivity(  Intent(this@MainActivity, AboutUsActivity::class.java))
+            }
 
             R.id.nav_sign_out -> {
                 // Here sign outs the user from firebase in this device.
@@ -110,10 +126,60 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 startActivity(intent)
                 finish()
             }
+
+            R.id.nav_rate_app ->{
+                showRateAppDialog()
+
+            }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
+
+    private fun showRateAppDialog() {
+        val dialogBuilder = AlertDialog.Builder(this)
+        val inflater = this.layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_rate_app, null)
+        dialogBuilder.setView(dialogView)
+
+        dialogBuilder.setTitle("Rate My App")
+        dialogBuilder.setMessage("Please rate our app and leave a review!")
+
+        dialogBuilder.setPositiveButton("Submit") { dialog, whichButton ->
+            var instanceOfReview: Review? =null
+            val ratingBar = dialogView.findViewById<RatingBar>(R.id.ratingBar)
+            val rating = ratingBar.rating
+            val reviewEditText = dialogView.findViewById<EditText>(R.id.reviewEditText)
+            val review = reviewEditText.text.toString()
+            val sharedPrefs = this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+            val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
+
+
+
+
+            // Store rating and review in Firebase Realtime Database
+            val database = FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
+            val ref = database.getReference("reviews")
+            val reviewId = ref.push().key!!
+            if (review.isNotEmpty()) {
+                val currentTime = Date().time
+                instanceOfReview = Review(reviewId, rating, review, getUserName(), currentTime, profileUri)
+                reviewEditText.text.clear()
+            } else {
+                Toast.makeText(this, "Enter a review.", Toast.LENGTH_SHORT).show()
+            }
+            ref.child(reviewId).setValue(instanceOfReview)
+            Toast.makeText(this, "Thank you for your review!", Toast.LENGTH_SHORT).show()
+        }
+
+        dialogBuilder.setNegativeButton("Cancel") { dialog, whichButton ->
+            // Cancel button clicked, do nothing
+        }
+
+        val b = dialogBuilder.create()
+        b.show()
+    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

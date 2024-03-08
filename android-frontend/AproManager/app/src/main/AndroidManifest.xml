@@ -26,13 +26,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
-        <activity
-            android:name=".kotlinCode.activities.MoveCardActivity"
-            android:exported="false"
-            android:label="@string/title_activity_move_card"
-            android:theme="@style/AppTheme" />
+
         <activity
             android:name=".kotlinCode.activities.CardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".kotlinCode.activities.AboutUsActivity"
             android:exported="false" />
         <activity
             android:name=".kotlinCode.activities.CreateBoardActivity"

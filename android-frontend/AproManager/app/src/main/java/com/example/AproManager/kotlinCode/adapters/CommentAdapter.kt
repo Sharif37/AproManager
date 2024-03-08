@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.AproManager.R
 import com.example.AproManager.databinding.CommentItemsBinding
-import com.example.AproManager.kotlinCode.activities.BaseActivity
 import com.example.AproManager.kotlinCode.models.Comments
 
 open class CommentAdapter(
@@ -38,6 +37,7 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
             holder.bind(model)
         }
     }
+
 
 
     inner class CommentViewHolder(private val binding: CommentItemsBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -97,10 +97,10 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
 
             }
             binding.likeButton.setOnClickListener {
-                likeClickListener.onLikeClick(adapterPosition,binding.likeCount,binding.likeButton)
+                likeClickListener.onLikeClick(bindingAdapterPosition,binding.likeCount,binding.likeButton)
             }
             binding.dislikeButton.setOnClickListener{
-                dislikeClickListener.onDisLikeClick(adapterPosition,binding.dislikeCount,binding.dislikeButton)
+                dislikeClickListener.onDisLikeClick(bindingAdapterPosition,binding.dislikeCount,binding.dislikeButton)
             }
 
 
