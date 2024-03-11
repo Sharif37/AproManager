@@ -25,17 +25,14 @@ import com.example.AproManager.javaCode.Activities.SignInActivity
 import com.example.AproManager.kotlinCode.adapters.BoardItemsAdapter
 import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
-import com.example.AproManager.kotlinCode.models.Comments
 import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.android.material.navigation.NavigationView
-import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
 import java.util.Date
-import java.util.UUID
 
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {

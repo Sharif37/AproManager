@@ -6,7 +6,6 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -16,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityCardDetailsBinding
 import com.example.AproManager.kotlinCode.adapters.CardMemberListItemsAdapter
@@ -64,6 +64,10 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     private var mCommentList: ArrayList<Comments> = ArrayList()
     private lateinit var adapter:CommentAdapter
     private var boardId=""
+    private lateinit var mLayoutManager:LinearLayoutManager
+    private var currentPage = 1
+    private var isLoading = false
+    private val commentsPerPage = 30
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,58 +118,50 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             showDatePicker()
         }
 
-        //keep previous comments
-        mCommentList=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].commentList
         initRecyclerView()
 
         binding.postComment.setOnClickListener{
             postComment()
         }
 
+        boardId= mBoardDetails.boardId
 
-         boardId= mBoardDetails.boardId
-         listenForCommentUpdates(boardId,mTaskListPosition,mCardPosition) { updatedCommentList ->
+        listenForCommentUpdates(boardId, mTaskListPosition, mCardPosition, commentsPerPage, 0) { updatedCommentList ->
             updateCommentListUI(updatedCommentList)
+
         }
 
 
     }
 
 
-    private fun listenForCommentUpdates(boardId: String, taskId: Int, cardId: Int,callback: (ArrayList<Comments>) -> Unit) {
-        val database =mDatabase
-        val boardsRef = database.getReference("boards")
-        val boardRef = boardsRef.child(boardId)
-        val taskListRef = boardRef.child("taskList").child(taskId.toString())
-        val cardRef = taskListRef.child("cards").child(cardId.toString())
 
 
-        cardRef.child("commentList").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val updatedCommentList: ArrayList<Comments> = ArrayList()
-                for (commentSnapshot in dataSnapshot.children) {
-                    val comment = commentSnapshot.getValue(Comments::class.java) ?: continue
-                    updatedCommentList.add(comment)
+    private fun initRecyclerView() {
+        mLayoutManager = LinearLayoutManager(this)
+        binding.RecyclerviewComments.layoutManager = mLayoutManager
+        adapter = CommentAdapter(this, getCurrentUserID(), mCommentList, this, this)
+        binding.RecyclerviewComments.adapter = adapter
+
+        setUpPagination()
+    }
+
+    private fun setUpPagination() {
+        binding.RecyclerviewComments.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0) {
+                    val visibleItemCount = mLayoutManager.childCount
+                    val totalItemCount = mLayoutManager.itemCount
+                    val pastVisibleItems = mLayoutManager.findFirstVisibleItemPosition()
+                    if (visibleItemCount + pastVisibleItems >= totalItemCount) {
+                        load()
+                    }
                 }
-                callback(updatedCommentList)
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-
             }
         })
     }
 
-    private fun updateCommentListInDatabase() {
-        FirebaseDatabaseClass().updateCommentListInDatabase( boardId,mTaskListPosition,mCardPosition,mCommentList)
-    }
-
-    private fun initRecyclerView() {
-        binding.RecyclerviewComments.layoutManager = LinearLayoutManager(this)
-        adapter = CommentAdapter(this, getCurrentUserID(), mCommentList, this, this)
-        binding.RecyclerviewComments.adapter = adapter
-
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun postComment() {
@@ -179,7 +175,8 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             mCommentList.add(instanceOfComment)
             binding.comment.text.clear()
             adapter.notifyDataSetChanged()
-           updateCommentListInDatabase()
+            mCommentList.addAll(generateDemoComments())
+            updateCommentListInDatabase()
         } else {
             Toast.makeText(this@CardDetailsActivity, "Enter a comment.", Toast.LENGTH_SHORT).show()
         }
@@ -477,7 +474,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
-        val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener{view, year, month, dayOfMonth ->
+        val dpd = DatePickerDialog(this, { view, year, month, dayOfMonth ->
             val sDayOfMonth = if (dayOfMonth < 10) "0${dayOfMonth}" else "$dayOfMonth"
             val sMonthOfYear = if ((month + 1) < 10) "0${month + 1}" else "${month + 1}"
             val selectedDate = "${sDayOfMonth}/${sMonthOfYear}/${year}"
@@ -490,6 +487,31 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
         dpd.show()
     }
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun load() {
+        if (!isLoading) {
+            isLoading = true
+            val startPosition = currentPage * commentsPerPage
+            binding.loadingSpinner.visibility = View.VISIBLE
+            listenForCommentUpdates(boardId, mTaskListPosition, mCardPosition, commentsPerPage, startPosition) { updatedCommentList ->
+                if (updatedCommentList.isNotEmpty()) {
+                    mCommentList.addAll(updatedCommentList)
+                    adapter.notifyDataSetChanged()
+                    currentPage++
+                } else {
+                    // All comments have been fetched
+
+                }
+                android.os.Handler().postDelayed({
+                    binding.loadingSpinner.visibility = View.GONE
+                    isLoading = false
+                }, 1000)
+            }
+        }
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onLikeClick(position: Int, likeCountTextView: TextView,likeButton:ImageButton) {
@@ -549,6 +571,10 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     }
 
 
+
+    private fun updateCommentListInDatabase() {
+        FirebaseDatabaseClass().updateCommentListInDatabase( boardId,mTaskListPosition,mCardPosition,mCommentList)
+    }
     @SuppressLint("NotifyDataSetChanged")
     private fun updateCommentListUI(updatedCommentList: ArrayList<Comments>) {
         // Update the local comment list
@@ -558,12 +584,50 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
         // Notify the adapter that the dataset has changed
         adapter.notifyDataSetChanged()
 
-        // Scroll the RecyclerView to the bottom to show the latest comment
-        binding.RecyclerviewComments.scrollToPosition(adapter.itemCount - 1)
 
     }
 
+    private fun listenForCommentUpdates(boardId: String, taskId: Int, cardId: Int, limit: Int, startPosition: Int, callback: (ArrayList<Comments>) -> Unit) {
+        val database = mDatabase
+        val boardsRef = database.getReference("boards")
+        val boardRef = boardsRef.child(boardId)
+        val taskListRef = boardRef.child("taskList").child(taskId.toString())
+        val cardRef = taskListRef.child("cards").child(cardId.toString())
 
+        cardRef.child("commentList")
+            .orderByKey()
+            .startAt(startPosition.toString())
+            .limitToFirst(limit)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val updatedCommentList: ArrayList<Comments> = ArrayList()
+                    for (commentSnapshot in dataSnapshot.children) {
+                        val comment = commentSnapshot.getValue(Comments::class.java) ?: continue
+                        updatedCommentList.add(comment)
+                    }
+                    callback(updatedCommentList)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle onCancelled
+                }
+            })
+    }
+
+
+
+
+    private fun generateDemoComments():ArrayList<Comments>{
+        var demoComment:Comments
+        val demo=ArrayList<Comments>()
+        for(i in 0 until 1000 ){
+            demoComment=Comments("comment$i","user$i",System.currentTimeMillis())
+            demo.add(demoComment)
+        }
+
+        return demo
+
+    }
 
 
 }
