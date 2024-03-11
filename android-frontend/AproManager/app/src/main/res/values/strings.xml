@@ -89,7 +89,7 @@
     <string name="select_board">select boards</string>
     <string name="select_position">select position</string>
     <string name="timestamp">timeStamp</string>
-    <string name="comments_sections">Comments section</string>
+    <string name="comments_sections">Comments Section</string>
 
 
     <string-array name="visibility_options">

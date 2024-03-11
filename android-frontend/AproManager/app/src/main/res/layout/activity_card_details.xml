@@ -5,9 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:backgroundTint="@color/white"
     >
 
 
+    <!-- Appbar-->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,6 +23,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!--Scroll-->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/cardDetailsScrollView"
         android:layout_width="match_parent"
@@ -29,209 +32,237 @@
         app:layout_constraintBottom_toTopOf="@+id/comment_react_layout"
         app:layout_constraintTop_toTopOf="parent">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="1"
-    android:orientation="vertical"
-
-    >
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/ic_background"
-        android:orientation="vertical"
-        android:padding="@dimen/card_details_content_padding">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/card_details_cv_card_name_marginBottom"
-            android:elevation="@dimen/card_view_elevation"
-            app:cardCornerRadius="@dimen/card_view_corner_radius">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="@dimen/card_details_cv_content_padding">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_name_card_details"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_card_name"
-                        android:inputType="text"
-                        android:textSize="@dimen/et_text_size"
-                        tools:text="Test" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="@dimen/card_view_elevation"
-            app:cardCornerRadius="@dimen/card_view_corner_radius"
-            app:cardElevation="0dp"
-            >
+            android:background="@drawable/ic_background"
+            android:orientation="vertical"
+            android:padding="@dimen/card_details_content_padding">
 
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/card_details_cv_card_name_marginBottom"
+                android:elevation="@dimen/card_view_elevation"
+                app:cardCornerRadius="@dimen/card_view_corner_radius">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_details_cv_content_padding">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/et_name_card_details"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/hint_card_name"
+                            android:inputType="text"
+                            android:textSize="@dimen/et_text_size"
+                            tools:text="Test" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="0dp"
+                app:cardElevation="0dp"
+                android:elevation="0dp"
+
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_details_cv_content_padding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_color"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="@dimen/card_details_label_text_size" />
+
+                    <TextView
+                        android:id="@+id/tv_select_label_color"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/card_details_value_marginTop"
+                        android:padding="@dimen/card_details_value_padding"
+                        android:text="@string/select_color"
+                        android:textColor="@color/primary_text_color" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/card_details_members_label_marginTop"
+                        android:text="@string/members"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="@dimen/card_details_label_text_size" />
+
+                    <TextView
+                        android:id="@+id/tv_select_members"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/card_details_value_marginTop"
+                        android:padding="@dimen/card_details_value_padding"
+                        android:text="@string/select_members"
+                        android:textColor="@color/primary_text_color"
+                        android:visibility="visible"
+                        tools:visibility="gone" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_selected_members_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/card_details_value_marginTop"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/card_details_members_label_marginTop"
+                        android:text="@string/due_date"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="@dimen/card_details_label_text_size" />
+
+                    <TextView
+                        android:id="@+id/tv_select_due_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/card_details_value_marginTop"
+                        android:padding="@dimen/card_details_value_padding"
+                        android:text="@string/select_due_date"
+                        android:textColor="@color/primary_text_color" />
+
+                    <Button
+                        android:id="@+id/btn_update_card_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/card_details_update_btn_marginTop"
+                        android:background="@drawable/shape_button_rounded"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center"
+                        android:paddingTop="@dimen/btn_paddingTopBottom"
+                        android:paddingBottom="@dimen/btn_paddingTopBottom"
+                        android:text="@string/update"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/btn_text_size" />
+
+
+
+                </LinearLayout>
+
+
+
+
+            </androidx.cardview.widget.CardView>
+
+
+            <!-- //comment section-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="@dimen/card_details_cv_content_padding">
+                >
 
-                <TextView
+
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_color"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="@dimen/card_details_label_text_size" />
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="@dimen/card_details_cv_card_name_marginBottom"
+                    android:elevation="0dp"
+                    app:cardCornerRadius="0dp"
 
-                <TextView
-                    android:id="@+id/tv_select_label_color"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/card_details_value_marginTop"
-                    android:padding="@dimen/card_details_value_padding"
-                    android:text="@string/select_color"
-                    android:textColor="@color/primary_text_color" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/card_details_members_label_marginTop"
-                    android:text="@string/members"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="@dimen/card_details_label_text_size" />
-
-                <TextView
-                    android:id="@+id/tv_select_members"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/card_details_value_marginTop"
-                    android:padding="@dimen/card_details_value_padding"
-                    android:text="@string/select_members"
-                    android:textColor="@color/primary_text_color"
-                    android:visibility="visible"
-                    tools:visibility="gone" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_selected_members_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/card_details_value_marginTop"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/card_details_members_label_marginTop"
-                    android:text="@string/due_date"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="@dimen/card_details_label_text_size" />
-
-                <TextView
-                    android:id="@+id/tv_select_due_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/card_details_value_marginTop"
-                    android:padding="@dimen/card_details_value_padding"
-                    android:text="@string/select_due_date"
-                    android:textColor="@color/primary_text_color" />
-
-                <Button
-                    android:id="@+id/btn_update_card_details"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/card_details_update_btn_marginTop"
-                    android:background="@drawable/shape_button_rounded"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:gravity="center"
-                    android:paddingTop="@dimen/btn_paddingTopBottom"
-                    android:paddingBottom="@dimen/btn_paddingTopBottom"
-                    android:text="@string/update"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/btn_text_size" />
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/comments_sections"
-                    android:textSize="20sp"
-                    android:textColor="#5858DA"
-                   android:padding="8dp"
-                    />
-                <LinearLayout
-                    android:id="@+id/commentBlog"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:elevation="@dimen/card_view_elevation"
-                    app:cardCornerRadius="@dimen/card_view_corner_radius"
                     >
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/RecyclerviewComments"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/comments_sections"
+                            android:textSize="18sp"
+                            android:textColor="@color/secondary_text_color"
+                            android:padding="8dp"
+
+                            />
+
+
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/RecyclerviewComments"
+                            android:layout_width="match_parent"
+                            android:layout_height="300dp"/>
+                        <ProgressBar
+                            android:id="@+id/loading_spinner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:visibility="visible" />
+
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
             </LinearLayout>
 
 
-
-
-        </androidx.cardview.widget.CardView>
-
-
-    </LinearLayout>
-
-</LinearLayout>
-
+        </LinearLayout>
 
 
     </androidx.core.widget.NestedScrollView>
 
-        <LinearLayout
-            android:id="@+id/comment_react_layout"
-            android:layout_width="match_parent"
+
+
+
+
+
+
+    <!--comment-->
+    <LinearLayout
+        android:id="@+id/comment_react_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="@dimen/card_details_content_padding">
+
+
+        <EditText
+            android:id="@+id/comment"
+            android:layout_width="0sp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:padding="@dimen/card_details_content_padding">
+            android:layout_weight="1"
+            android:hint="@string/write_a_comment"
+            android:autofillHints=""
+            android:inputType="text" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/post_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:src="@drawable/baseline_send_24"
+            android:contentDescription="@string/todo"
+            app:elevation="0dp"
+            />
 
-            <EditText
-                android:id="@+id/comment"
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/write_a_comment"
-                android:autofillHints=""
-                android:inputType="text" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/post_comment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:src="@drawable/baseline_send_24"
-                android:contentDescription="@string/todo"
-                app:elevation="0dp"
-                />
-
-        </LinearLayout>
+    </LinearLayout>
 
 
 

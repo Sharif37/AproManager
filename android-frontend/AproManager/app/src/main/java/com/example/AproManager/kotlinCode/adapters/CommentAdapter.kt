@@ -12,37 +12,34 @@ import com.example.AproManager.R
 import com.example.AproManager.databinding.CommentItemsBinding
 import com.example.AproManager.kotlinCode.models.Comments
 
-open class CommentAdapter(
-    private  val context: Context,private val currentUserId:String,
-    private var commentList:ArrayList<Comments>,
+     class CommentAdapter(
+    private val context: Context,
+    private val currentUserId: String,
+    private var commentList: ArrayList<Comments>,
     private val likeClickListener: OnClickListener,
     private val dislikeClickListener: OnClickListener
-    ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int): RecyclerView.ViewHolder {
-val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return CommentViewHolder(binding)
-    }
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
 
-    override fun getItemCount(): Int {
-       return commentList.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+
+            val binding = CommentItemsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return CommentViewHolder(binding)
+
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model=commentList[position]
-        if(holder is CommentViewHolder){
-            holder.bind(model)
+        if (holder is CommentViewHolder) {
+            holder.bind(commentList[position])
         }
     }
 
+    override fun getItemCount(): Int {
+        return commentList.size
+    }
 
-
-    inner class CommentViewHolder(private val binding: CommentItemsBinding) : RecyclerView.ViewHolder(binding.root) {
-
-
+         inner class CommentViewHolder(private val binding: CommentItemsBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(model: Comments) {
             Glide
                 .with(context)
@@ -78,8 +75,8 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
 
             binding.commentTime.text = timeAgoText
 
-           val likeCount=model.likedBy.size
-           val dislikeCount=model.dislikedBy.size
+            val likeCount=model.likedBy.size
+            val dislikeCount=model.dislikedBy.size
 
             if(model.likedBy.contains(currentUserId)){
                 binding.likeButton.setImageResource(R.drawable.thum_up_after_liked)
@@ -89,7 +86,7 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
             }
             if(likeCount>0) {
                 binding.likeCount.text = likeCount.toString()
-                binding.likeCount.visibility =View.VISIBLE
+                binding.likeCount.visibility = View.VISIBLE
             }
             if(dislikeCount>0){
                 binding.dislikeCount.text = dislikeCount.toString()
@@ -108,11 +105,12 @@ val binding=CommentItemsBinding.inflate(LayoutInflater.from(parent.context),pare
     }
 
 
-    interface OnClickListener {
-        fun onLikeClick(position: Int, likeCountTextView: TextView,likeButton:ImageButton)
-        fun onDisLikeClick(position: Int, disLikeCountTextView: TextView,dislikeButton:ImageButton)
-    }
 
+    interface OnClickListener {
+
+        fun onLikeClick(position: Int, likeCountTextView: TextView, likeButton: ImageButton)
+        fun onDisLikeClick(position: Int, disLikeCountTextView: TextView, dislikeButton: ImageButton)
+    }
 
 
 }
