@@ -16,8 +16,9 @@ class ReviewAdapter(
 ) : RecyclerView.Adapter<ReviewAdapter.ReviewInnerClass>(){
 
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewInnerClass {
-      val binding=ReviewItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+      val binding = ReviewItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return ReviewInnerClass(binding)
     }
 

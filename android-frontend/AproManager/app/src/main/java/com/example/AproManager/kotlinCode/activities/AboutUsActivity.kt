@@ -8,10 +8,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.AproManager.databinding.ActivityAboutUsBinding
 import com.example.AproManager.kotlinCode.adapters.ReviewAdapter
 import com.example.AproManager.kotlinCode.models.Review
+import com.example.AproManager.kotlinCode.retrofit.RetrofitClient
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import okhttp3.ResponseBody
+import org.json.JSONArray
+import org.json.JSONException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 
 class AboutUsActivity : AppCompatActivity() {
 
@@ -51,7 +59,7 @@ class AboutUsActivity : AppCompatActivity() {
 
 
 
-        getAllReviewsFromDatabase { reviewList ->
+       /* getAllReviewsFromDatabase { reviewList ->
 
             val averageRating = reviewList.map { it.rating }.average()
             avgRatingTextView.text = String.format("%.1f", averageRating)
@@ -80,6 +88,20 @@ class AboutUsActivity : AppCompatActivity() {
             adapter=ReviewAdapter(reviewList,this@AboutUsActivity)
             binding.reviewRecyclerView.layoutManager=LinearLayoutManager(this)
             binding.reviewRecyclerView.adapter=adapter
+        }*/
+
+
+        getAllReviewsFromRestApi { reviews, throwable ->
+            Log.d("AboutUsActivity",reviews.toString())
+            if(reviews!=null) {
+                adapter = ReviewAdapter(reviews, this@AboutUsActivity)
+                binding.reviewRecyclerView.layoutManager = LinearLayoutManager(this)
+                binding.reviewRecyclerView.adapter = adapter
+            }else
+            {
+                Log.d("AboutUsActivity",throwable.toString())
+            }
+
         }
 
 
@@ -144,8 +166,72 @@ class AboutUsActivity : AppCompatActivity() {
     }
 
 
+   /* private fun getAllReviewsFromRestApi(callback: (ArrayList<Review>?, Throwable?) -> Unit) {
+        val apiService = RetrofitClient.getApiService()
+
+        val call: Call<ArrayList<Review>> = apiService.getAllReviews()
+
+        call.enqueue(object : Callback<ArrayList<Review>> {
+            override fun onResponse(call: Call<ArrayList<Review>>, response: Response<ArrayList<Review>>) {
+                if (response.isSuccessful) {
+                    val reviews = response.body()
+                    callback(reviews, null)
+                } else {
+                    callback(null, Exception("Failed to fetch reviews: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<ArrayList<Review>>, t: Throwable) {
+                callback(null, t)
+            }
+        })
+    }
+*/
 
 
+    private fun getAllReviewsFromRestApi(callback: (ArrayList<Review>?, Throwable?) -> Unit) {
+        val apiService = RetrofitClient.getApiService()
 
+        val call: Call<ResponseBody> = apiService.getAllReviews()
+
+        call.enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    val rawJson = response.body()?.string()
+                    val reviews = parseReviewsFromJson(rawJson)
+                    callback(reviews, null)
+                } else {
+                    Log.e("getAllReviewsFromRestApi", "Failed to fetch reviews: ${response.code()}")
+                    callback(null, Exception("Failed to fetch reviews: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("getAllReviewsFromRestApi", "Error fetching reviews", t)
+                callback(null, t)
+            }
+        })
+    }
+
+    private fun parseReviewsFromJson(json: String?): ArrayList<Review> {
+        val reviews = ArrayList<Review>()
+        try {
+            val jsonArray = JSONArray(json)
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                val reviewId = jsonObject.optString("review_id")
+                val rating = jsonObject.optDouble("rating", 0.0).toFloat()
+                val review = jsonObject.optString("review")
+                val reviewBy = jsonObject.optString("review_by")
+                val reviewTime = jsonObject.optLong("review_time")
+                val profileUri = jsonObject.optString("profile_uri")
+                val reviewObj = Review(reviewId, rating, review, reviewBy, reviewTime, profileUri)
+                reviews.add(reviewObj)
+            }
+        } catch (e: JSONException) {
+            Log.e("parseReviewsFromJson", "Error parsing JSON", e)
+        }
+        return reviews
+    }
 
 }
