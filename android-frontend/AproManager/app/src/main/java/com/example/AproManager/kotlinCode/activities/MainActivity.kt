@@ -27,11 +27,16 @@ import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
 import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.models.User
+import com.example.AproManager.kotlinCode.retrofit.RetrofitClient
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Date
 
 
@@ -159,13 +164,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             val ref = database.getReference("reviews")
             val reviewId = ref.push().key!!
             if (review.isNotEmpty()) {
-                val currentTime = Date().time
+                val currentTime= Date().time
                 instanceOfReview = Review(reviewId, rating, review, getUserName(), currentTime, profileUri)
                 reviewEditText.text.clear()
+                
+                //send review to rest API 
+                sendReviewToRestApi(rating, review, getUserName(), currentTime, profileUri)
+
             } else {
                 Toast.makeText(this, "Enter a review.", Toast.LENGTH_SHORT).show()
             }
-            ref.child(reviewId).setValue(instanceOfReview)
+           ref.child(reviewId).setValue(instanceOfReview)
             Toast.makeText(this, "Thank you for your review!", Toast.LENGTH_SHORT).show()
         }
 
@@ -175,6 +184,34 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         val b = dialogBuilder.create()
         b.show()
+    }
+
+    private fun sendReviewToRestApi(rating: Float, review: String, userName: String, currentTime: Long, profileUri: String) {
+        val apiService = RetrofitClient.getApiService()
+        val reviewObject=Review(rating, review,userName, currentTime, profileUri)
+        val call:Call<ResponseBody> = apiService.sendReview(reviewObject)
+            call.enqueue(object: Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    if (response.isSuccessful) {
+                        // Review sent successfully
+                        Log.d("MainActivity", "Response: ${response.body()}")
+                        Log.d("MainActivity", "Review sent successfully")
+                    } else {
+                        // Review sending failed
+                        Log.e("MainActivity", "Failed to send review")
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e("MainActivity", "Error sending review", t)
+                }
+
+
+            })
+
     }
 
 
