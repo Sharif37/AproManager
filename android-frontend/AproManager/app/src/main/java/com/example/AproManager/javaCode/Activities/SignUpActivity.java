@@ -25,6 +25,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class SignUpActivity extends BaseActivity {
     private EditText etName, etEmail, etPassword;
 
@@ -104,9 +107,26 @@ public class SignUpActivity extends BaseActivity {
         } else if (TextUtils.isEmpty(password)) {
             showErrorSnackBar("Please enter password.");
             return false;
-        } else {
+        }else if(isEmailValid(email)){
+            showErrorSnackBar("Please enter valid email.");
+            return false ;
+        }
+
+        else {
             return true;
         }
+    }
+
+
+    public boolean isEmailValid(String email) {
+        // Define a regular expression for the Android email format
+        String regex = "^[A-Za-z0-9+_.-]+@[a-zA-Z0-9.-]+$";
+
+        // Use the regular expression to match the email address
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+
+        return matcher.matches();
     }
 
     public void userRegisteredSuccess(){

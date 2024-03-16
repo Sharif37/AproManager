@@ -59,7 +59,7 @@ class AboutUsActivity : AppCompatActivity() {
 
 
 
-       /* getAllReviewsFromDatabase { reviewList ->
+        getAllReviewsFromDatabase { reviewList ->
 
             val averageRating = reviewList.map { it.rating }.average()
             avgRatingTextView.text = String.format("%.1f", averageRating)
@@ -88,7 +88,7 @@ class AboutUsActivity : AppCompatActivity() {
             adapter=ReviewAdapter(reviewList,this@AboutUsActivity)
             binding.reviewRecyclerView.layoutManager=LinearLayoutManager(this)
             binding.reviewRecyclerView.adapter=adapter
-        }*/
+        }
 
 
         getAllReviewsFromRestApi { reviews, throwable ->
@@ -136,7 +136,6 @@ class AboutUsActivity : AppCompatActivity() {
 
     private fun loadMap()
     {
-
         val frameMap = """<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d460.8617979104278!2d91.7856623!3d22.4706029!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30acd6fcf93fffff%3A0x12b289338778d80f!2sIT%20Building!5e0!3m2!1sen!2sbd!4v1709773506963!5m2!1sen!2sbd" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>"""
        binding.mapWebView.loadData(frameMap, "text/html", "utf-8")
     }

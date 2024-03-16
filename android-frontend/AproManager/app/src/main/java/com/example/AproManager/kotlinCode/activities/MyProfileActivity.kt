@@ -214,8 +214,15 @@ class MyProfileActivity : BaseActivity() {
             userHashMap[Constants.NAME] = binding.etName.text.toString()
         }
 
+        val validMobile=binding.etMobile.text.toString()
+        if(validMobile.length==11){
         if (binding.etMobile.text.toString() != mUserDetails.mobile.toString()) {
+
             userHashMap[Constants.MOBILE] = binding.etMobile.text.toString().toLong()
+        }}
+        else
+        {
+            Toast.makeText(this@MyProfileActivity,"give a valid mobile number",Toast.LENGTH_LONG).show()
         }
 
         // Update the data in the database.
