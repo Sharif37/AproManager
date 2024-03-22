@@ -1,0 +1,10 @@
+query GetReviews {
+  getReviews {
+    id
+    rating
+    review
+    reviewBy
+    reviewTime
+    profileUri
+  }
+}
