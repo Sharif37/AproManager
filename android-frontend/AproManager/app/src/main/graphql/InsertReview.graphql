@@ -1,0 +1,3 @@
+mutation InsertReview($rating: Float!, $review: String!, $reviewBy: String!, $reviewTime: Long!, $profileUri: String!) {
+  insertReview(rating: $rating, review: $review, reviewBy: $reviewBy, reviewTime: $reviewTime, profileUri: $profileUri)
+}

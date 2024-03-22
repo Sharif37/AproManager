@@ -22,9 +22,12 @@ import com.example.AproManager.databinding.ActivityMainNewBinding
 import com.example.AproManager.databinding.AppBarMainBinding
 import com.example.AproManager.databinding.ContentMainBinding
 import com.example.AproManager.javaCode.Activities.SignInActivity
+import com.example.AproManager.kotlinCode.GraphQl.GraphQLService
+import com.example.AproManager.kotlinCode.GraphQl.RetrofitClientForGraphQl
 import com.example.AproManager.kotlinCode.adapters.BoardItemsAdapter
 import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 import com.example.AproManager.kotlinCode.models.Board
+import com.example.AproManager.kotlinCode.models.GraphQLRequest
 import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.retrofit.RetrofitClient
@@ -33,6 +36,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.JsonObject
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -60,7 +64,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         setupActionBar()
 
-        // Assign the NavigationView.OnNavigationItemSelectedListener to navigation view.
         binding.navView.setNavigationItemSelectedListener(this)
 
         mSharedPreferences=this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE,
@@ -114,7 +117,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     MY_PROFILE_REQUEST_CODE)
             }
             R.id.nav_about_us -> {
-                   startActivity(  Intent(this@MainActivity, AboutUsActivity::class.java))
+                startActivity(  Intent(this@MainActivity, AboutUsActivity::class.java))
             }
 
             R.id.nav_sign_out -> {
@@ -157,8 +160,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
 
 
-
-
             // Store rating and review in Firebase Realtime Database
             val database = FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
             val ref = database.getReference("reviews")
@@ -167,51 +168,105 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 val currentTime= Date().time
                 instanceOfReview = Review(reviewId, rating, review, getUserName(), currentTime, profileUri)
                 reviewEditText.text.clear()
-                
-                //send review to rest API 
-                sendReviewToRestApi(rating, review, getUserName(), currentTime, profileUri)
+
+                //TODo send review to rest API
+                //sendReviewToRestApi(rating, review, getUserName(), currentTime, profileUri)
+                //TODO send review to GraphQL
+                //sendReviewToGraphQlServer(rating, review, getUserName(), currentTime, profileUri)
 
             } else {
                 Toast.makeText(this, "Enter a review.", Toast.LENGTH_SHORT).show()
             }
-           ref.child(reviewId).setValue(instanceOfReview)
+            ref.child(reviewId).setValue(instanceOfReview)
             Toast.makeText(this, "Thank you for your review!", Toast.LENGTH_SHORT).show()
+
         }
 
         dialogBuilder.setNegativeButton("Cancel") { dialog, whichButton ->
-            // Cancel button clicked, do nothing
+            // Cancel button , do nothing
         }
 
         val b = dialogBuilder.create()
         b.show()
     }
 
+
+
+
+    //TODO:Send data to RESTAPI Server
+
     private fun sendReviewToRestApi(rating: Float, review: String, userName: String, currentTime: Long, profileUri: String) {
         val apiService = RetrofitClient.getApiService()
         val reviewObject=Review(rating, review,userName, currentTime, profileUri)
         val call:Call<ResponseBody> = apiService.sendReview(reviewObject)
-            call.enqueue(object: Callback<ResponseBody> {
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    if (response.isSuccessful) {
-                        // Review sent successfully
-                        Log.d("MainActivity", "Response: ${response.body()}")
-                        Log.d("MainActivity", "Review sent successfully")
-                    } else {
-                        // Review sending failed
-                        Log.e("MainActivity", "Failed to send review")
-                    }
+        call.enqueue(object: Callback<ResponseBody> {
+            override fun onResponse(
+                call: Call<ResponseBody>,
+                response: Response<ResponseBody>
+            ) {
+                if (response.isSuccessful) {
+                    // Review sent successfully
+                    Log.d("MainActivity", "Response: ${response.body()}")
+                    Log.d("MainActivity", "Review sent successfully")
+                    val intent=Intent(this@MainActivity,AboutUsActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    // Review sending failed
+                    Log.e("MainActivity", "Failed to send review")
                 }
+            }
 
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Log.e("MainActivity", "Error sending review", t)
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("MainActivity", "Error sending review", t)
+            }
+
+
+        })
+
+    }
+
+
+    //TODO:Send data to GraphQl Server
+    private fun sendReviewToGraphQlServer(rating: Float, review: String, userName: String, currentTime: Long, profileUri: String) {
+        val service: GraphQLService = RetrofitClientForGraphQl.getApiService()
+
+        val query: String = """
+    mutation {
+      insertReview(
+        rating: $rating,
+        review: "$review",
+        reviewBy: "$userName",
+        reviewTime: "$currentTime",
+        profileUri: "$profileUri"
+      ) {
+        id
+        rating
+        review
+        reviewBy
+        reviewTime
+        profileUri
+      }
+    }
+""".trimIndent()
+
+
+        val call = service.addReview(GraphQLRequest(query, emptyMap()))
+        call.enqueue(object : Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
+                if (response.isSuccessful) {
+                    val intent=Intent(this@MainActivity,AboutUsActivity::class.java)
+                    startActivity(intent)
+                    Log.d("AddReviewResponse", "Response: ${response.body()}")
+                } else {
+                    Log.e("AddReviewResponse", "Error: ${response.errorBody()?.string()}")
                 }
+            }
 
-
-            })
-
+            override fun onFailure(call: Call<JsonObject>, t: Throwable) {
+                t.printStackTrace()
+                Log.e("AddReviewResponse", "Error occurred", t)
+            }
+        })
     }
 
 
@@ -339,7 +394,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun updateFCMToken(token:String){
         val userHashMap=HashMap<String,Any>()
         userHashMap[Constants.Fcm_Token]=token
-      FirebaseDatabaseClass().updateUserProfileData(this,userHashMap)
+        FirebaseDatabaseClass().updateUserProfileData(this,userHashMap)
     }
 
     /**

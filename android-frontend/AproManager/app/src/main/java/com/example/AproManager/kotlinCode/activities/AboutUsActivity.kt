@@ -6,13 +6,16 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.AproManager.databinding.ActivityAboutUsBinding
+import com.example.AproManager.kotlinCode.GraphQl.RetrofitClientForGraphQl
 import com.example.AproManager.kotlinCode.adapters.ReviewAdapter
+import com.example.AproManager.kotlinCode.models.GraphQLRequest
 import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.retrofit.RetrofitClient
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.JsonObject
 import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONException
@@ -24,11 +27,11 @@ import retrofit2.Response
 class AboutUsActivity : AppCompatActivity() {
 
 
-
     private lateinit var adapter: ReviewAdapter
-    private var reviewList:ArrayList<Review> = ArrayList()
+    private var reviewList: ArrayList<Review> = ArrayList()
+    private var query: String = ""
 
-    private lateinit var binding:ActivityAboutUsBinding
+    private lateinit var binding: ActivityAboutUsBinding
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +46,6 @@ class AboutUsActivity : AppCompatActivity() {
         loadVideo()
         loadMap()
 
-        
         val avgRatingTextView = binding.avgRating
         val totalUserGiveRateTextView = binding.totalUserGiveRate
 
@@ -58,40 +60,45 @@ class AboutUsActivity : AppCompatActivity() {
         val progressBar1 = binding.progressBar1
 
 
+         getAllReviewsFromDatabase { reviewList ->
 
-        getAllReviewsFromDatabase { reviewList ->
+             val averageRating = reviewList.map { it.rating }.average()
+             avgRatingTextView.text = String.format("%.1f", averageRating)
+             ratingBar.rating = averageRating.toFloat()
 
-            val averageRating = reviewList.map { it.rating }.average()
-            avgRatingTextView.text = String.format("%.1f", averageRating)
-            ratingBar.rating= averageRating.toFloat()
+             // Update total user rating count
+             val totalUserRatingCount = reviewList.size
+             totalUserGiveRateTextView.text = totalUserRatingCount.toString()
 
-            // Update total user rating count
-            val totalUserRatingCount = reviewList.size
-            totalUserGiveRateTextView.text = totalUserRatingCount.toString()
+             // Calculate rating distribution
+             val ratings = reviewList.map { it.rating.toInt() }
+             val ratingCounts =
+                 IntArray(5) // Array to store count of ratings for each star (0-4 stars)
 
-            // Calculate rating distribution
-            val ratings = reviewList.map { it.rating.toInt() }
-            val ratingCounts = IntArray(5) // Array to store count of ratings for each star (0-4 stars)
+             for (rating in ratings) {
+                 ratingCounts[rating - 1]++ // Increment count for corresponding rating
+             }
 
-            for (rating in ratings) {
-                ratingCounts[rating - 1]++ // Increment count for corresponding rating
-            }
-
-            // Update progress bars for each rating
-            progressBar5.progress = calculateProgressBarProgress(ratingCounts[4], totalUserRatingCount)
-            progressBar4.progress = calculateProgressBarProgress(ratingCounts[3], totalUserRatingCount)
-            progressBar3.progress = calculateProgressBarProgress(ratingCounts[2], totalUserRatingCount)
-            progressBar2.progress = calculateProgressBarProgress(ratingCounts[1], totalUserRatingCount)
-            progressBar1.progress = calculateProgressBarProgress(ratingCounts[0], totalUserRatingCount)
-
-
-            adapter=ReviewAdapter(reviewList,this@AboutUsActivity)
-            binding.reviewRecyclerView.layoutManager=LinearLayoutManager(this)
-            binding.reviewRecyclerView.adapter=adapter
-        }
+             // Update progress bars for each rating
+             progressBar5.progress =
+                 calculateProgressBarProgress(ratingCounts[4], totalUserRatingCount)
+             progressBar4.progress =
+                 calculateProgressBarProgress(ratingCounts[3], totalUserRatingCount)
+             progressBar3.progress =
+                 calculateProgressBarProgress(ratingCounts[2], totalUserRatingCount)
+             progressBar2.progress =
+                 calculateProgressBarProgress(ratingCounts[1], totalUserRatingCount)
+             progressBar1.progress =
+                 calculateProgressBarProgress(ratingCounts[0], totalUserRatingCount)
 
 
-        getAllReviewsFromRestApi { reviews, throwable ->
+             adapter = ReviewAdapter(reviewList, this@AboutUsActivity)
+             binding.reviewRecyclerView.layoutManager = LinearLayoutManager(this)
+             binding.reviewRecyclerView.adapter = adapter
+         }
+
+
+        /* getAllReviewsFromRestApi { reviews, throwable ->
             Log.d("AboutUsActivity",reviews.toString())
             if(reviews!=null) {
                 adapter = ReviewAdapter(reviews, this@AboutUsActivity)
@@ -102,12 +109,20 @@ class AboutUsActivity : AppCompatActivity() {
                 Log.d("AboutUsActivity",throwable.toString())
             }
 
-        }
+        }*/
 
 
+        /* getAllReviewsFromGraphQl { reviews, throwable ->
+            if (reviews != null) {
+                adapter = ReviewAdapter(reviews, this@AboutUsActivity)
+                binding.reviewRecyclerView.layoutManager = LinearLayoutManager(this)
+                binding.reviewRecyclerView.adapter = adapter
+            } else {
+                Log.d("AboutUsActivity", throwable.toString())
+            }
 
 
-
+        }*/
     }
 
 
@@ -119,8 +134,7 @@ class AboutUsActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadVideo()
-    {
+    private fun loadVideo() {
         val videoId = "Bcid33tgq8A"
         val frameVideo = """
     <!DOCTYPE html>
@@ -134,14 +148,18 @@ class AboutUsActivity : AppCompatActivity() {
         binding.webView.loadData(frameVideo, "text/html", "utf-8")
     }
 
-    private fun loadMap()
-    {
-        val frameMap = """<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d460.8617979104278!2d91.7856623!3d22.4706029!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30acd6fcf93fffff%3A0x12b289338778d80f!2sIT%20Building!5e0!3m2!1sen!2sbd!4v1709773506963!5m2!1sen!2sbd" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>"""
-       binding.mapWebView.loadData(frameMap, "text/html", "utf-8")
+    private fun loadMap() {
+        val frameMap =
+            """<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d460.8617979104278!2d91.7856623!3d22.4706029!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30acd6fcf93fffff%3A0x12b289338778d80f!2sIT%20Building!5e0!3m2!1sen!2sbd!4v1709773506963!5m2!1sen!2sbd" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>"""
+        binding.mapWebView.loadData(frameMap, "text/html", "utf-8")
     }
 
+
+
+    //TODO get ALl review from firebase
     private fun getAllReviewsFromDatabase(callback: (ArrayList<Review>) -> Unit) {
-        val database = FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
+        val database =
+            FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
         val ref = database.getReference("reviews")
 
         val reviewList = ArrayList<Review>()
@@ -164,29 +182,7 @@ class AboutUsActivity : AppCompatActivity() {
         })
     }
 
-
-   /* private fun getAllReviewsFromRestApi(callback: (ArrayList<Review>?, Throwable?) -> Unit) {
-        val apiService = RetrofitClient.getApiService()
-
-        val call: Call<ArrayList<Review>> = apiService.getAllReviews()
-
-        call.enqueue(object : Callback<ArrayList<Review>> {
-            override fun onResponse(call: Call<ArrayList<Review>>, response: Response<ArrayList<Review>>) {
-                if (response.isSuccessful) {
-                    val reviews = response.body()
-                    callback(reviews, null)
-                } else {
-                    callback(null, Exception("Failed to fetch reviews: ${response.code()}"))
-                }
-            }
-
-            override fun onFailure(call: Call<ArrayList<Review>>, t: Throwable) {
-                callback(null, t)
-            }
-        })
-    }
-*/
-
+    //TODO get All review Using RESTApi and PostGreSQl
 
     private fun getAllReviewsFromRestApi(callback: (ArrayList<Review>?, Throwable?) -> Unit) {
         val apiService = RetrofitClient.getApiService()
@@ -233,4 +229,61 @@ class AboutUsActivity : AppCompatActivity() {
         return reviews
     }
 
+
+    // TODO: get ALL review from PostGreSql using GraphQl
+    private fun getAllReviewsFromGraphQl(callback: (ArrayList<Review>?, Throwable?) -> Unit) {
+        val query = """
+        query {
+            getReviews {
+                id
+                rating
+                review
+                reviewBy
+                reviewTime
+                profileUri
+            }
+        }
+    """.trimIndent()
+
+        //val variables = hashMapOf<String, Any>()
+        val service = RetrofitClientForGraphQl.getApiService()
+        val call = service.postQuery(GraphQLRequest(query, emptyMap()))
+
+        call.enqueue(object : Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
+                if (response.isSuccessful) {
+                    val reviewList = ArrayList<Review>()
+                    val data = response.body()?.getAsJsonObject("data")
+                    val reviews = data?.getAsJsonArray("getReviews")
+
+                    reviews?.forEach { reviewJson ->
+                        val reviewObject = reviewJson.asJsonObject
+                        val review = Review(
+                            reviewId = reviewObject.get("id").asString,
+                            rating = reviewObject.get("rating").asFloat,
+                            review = reviewObject.get("review").asString,
+                            reviewBy = reviewObject.get("reviewBy").asString,
+                            reviewTime = reviewObject.get("reviewTime").asLong,
+                            profileUri = reviewObject.get("profileUri").asString
+                        )
+                        reviewList.add(review)
+                    }
+
+                    callback(reviewList, null)
+                } else {
+                    Log.e("getAllReviewsFromGraphQl", "${response.errorBody()}")
+                    callback(null, Exception("Failed to fetch reviews: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<JsonObject>, t: Throwable) {
+                Log.e("getAllReviewsFromGraphQl", "Error fetching reviews", t)
+                callback(null, t)
+            }
+        })
+    }
+
 }
+
+
+
