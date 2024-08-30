@@ -20,14 +20,16 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:usesCleartextTraffic="true"
         android:icon="@mipmap/logo"
         android:label="AproManager"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
+        <activity
+            android:name=".kotlinCode.activities.GenerateImageActivity"
+            android:exported="false" />
         <activity
             android:name=".kotlinCode.activities.CardActivity"
             android:exported="false" />

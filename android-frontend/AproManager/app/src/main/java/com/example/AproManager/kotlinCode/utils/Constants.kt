@@ -56,6 +56,8 @@ object Constants {
     const val KEY_MESSAGE:String = "message"
     const val KEY_DATA:String = "data"
     const val Key_TO:String="to"
+    const val Image_URL="IMAGE_URI"
+    const val DESCRIPTION="Description"
 
     // FCM token key
     const val FCM_TOKEN = "fcm_token"

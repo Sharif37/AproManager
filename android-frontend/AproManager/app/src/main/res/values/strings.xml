@@ -112,6 +112,9 @@
     <string name="_1">1</string>
     <string name="our_office_location">Our Office Location</string>
     <string name="our_info">About Us</string>
+    <string name="text_to_image">add image</string>
+    <string name="add_image">add image</string>
+    <string name="description">description</string>
 
 
 </resources>

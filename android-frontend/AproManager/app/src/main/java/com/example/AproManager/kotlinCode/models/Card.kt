@@ -1,5 +1,6 @@
 package com.example.AproManager.kotlinCode.models
 
+import android.media.Image
 import android.os.Parcel
 import android.os.Parcelable
 
@@ -10,6 +11,8 @@ data class Card(
     val assignedTo: ArrayList<String> = ArrayList(),
     val labelColor: String = "",
     val dueDate:Long=0,
+    val description:String?="",
+    val descriptionImageUrl: String?="",
     var commentList: ArrayList<Comments> = ArrayList(),
 ) : Parcelable {
     constructor(source: Parcel) : this(
@@ -19,6 +22,8 @@ data class Card(
         source.createStringArrayList()!!,
         source.readString()!!,
         source.readLong(),
+        source.readString(),
+        source.readString(),
         source.createTypedArrayList(Comments.CREATOR)!!,
     )
 
@@ -31,6 +36,8 @@ data class Card(
         writeStringList(assignedTo)
         writeString(labelColor)
         writeLong(dueDate)
+        writeString(description)
+        writeString(descriptionImageUrl)
         writeTypedList(commentList)
     }
 

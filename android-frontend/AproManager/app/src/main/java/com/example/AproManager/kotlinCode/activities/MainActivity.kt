@@ -31,6 +31,7 @@ import com.example.AproManager.kotlinCode.models.GraphQLRequest
 import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.retrofit.RetrofitClient
+import com.example.AproManager.kotlinCode.retrofit.RetrofitClient2
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth

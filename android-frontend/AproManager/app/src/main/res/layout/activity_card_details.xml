@@ -7,8 +7,6 @@
     android:orientation="vertical"
     android:backgroundTint="@color/white"
     >
-
-
     <!-- Appbar-->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -41,7 +39,7 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/card_details_cv_card_name_marginBottom"
                 android:elevation="@dimen/card_view_elevation"
                 app:cardCornerRadius="@dimen/card_view_corner_radius">
@@ -69,6 +67,78 @@
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_details_cv_card_name_marginBottom"
+                android:elevation="@dimen/card_view_elevation"
+                app:cardCornerRadius="@dimen/card_view_corner_radius"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_details_cv_content_padding"
+                   >
+
+
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundMode="none"
+                        >
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Description"
+                            android:padding="8dp"
+                            android:inputType="textMultiLine"
+                            android:textSize="@dimen/et_text_size"
+                            android:backgroundTint="@color/white"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+                    <!-- Image Button -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        >
+                        <ImageView
+                            android:id="@+id/descriptionImage"
+                            android:layout_width="200dp"
+                            android:layout_height="200dp"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="5dp"
+                            android:visibility="gone"
+                            />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_add_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/add_image"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_margin="16dp"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+
+                            />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

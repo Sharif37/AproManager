@@ -15,4 +15,8 @@ public interface ApiService {
     Call<ResponseBody> sendReview(@Body Review reviewData);
     @GET("/reviews")
     Call<ResponseBody> getAllReviews();
+    @POST("models/ZB-Tech/Text-to-Image")
+    Call<ResponseBody> generateImage(@Body ImageRequest request) ;
+
+
 }

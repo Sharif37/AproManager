@@ -11,6 +11,7 @@ import com.example.AproManager.kotlinCode.adapters.ReviewAdapter
 import com.example.AproManager.kotlinCode.models.GraphQLRequest
 import com.example.AproManager.kotlinCode.models.Review
 import com.example.AproManager.kotlinCode.retrofit.RetrofitClient
+import com.example.AproManager.kotlinCode.retrofit.RetrofitClient2
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase

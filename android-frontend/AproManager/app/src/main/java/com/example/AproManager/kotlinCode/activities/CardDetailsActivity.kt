@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -12,10 +13,12 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.AproManager.R
 import com.example.AproManager.databinding.ActivityCardDetailsBinding
 import com.example.AproManager.kotlinCode.adapters.CardMemberListItemsAdapter
@@ -40,31 +43,37 @@ import java.util.Date
 import java.util.Locale
 
 
-class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
-{
+class CardDetailsActivity : BaseActivity(), CommentAdapter.OnClickListener {
 
-    private val mDatabase = FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private val mDatabase =
+        FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
     private lateinit var binding: ActivityCardDetailsBinding
+
     // board details
     private lateinit var mBoardDetails: Board
+
     //  task item position
     private var mTaskListPosition: Int = -1
+
     // card item position
     private var mCardPosition: Int = -1
+
     // selected label color
     private var mSelectedColor: String = ""
 
     //  Assigned Members List.
     private lateinit var mMembersDetailList: ArrayList<User>
+
     //Due date
-    private var mSelectedDueDateMilliSeconds:Long=0
+    private var mSelectedDueDateMilliSeconds: Long = 0
+    private var mDescriptionImageURL: String? = null
 
     //comments
     private var mCommentList: ArrayList<Comments> = ArrayList()
-    private lateinit var adapter:CommentAdapter
-    private var boardId=""
-    private lateinit var mLayoutManager:LinearLayoutManager
+    private lateinit var adapter: CommentAdapter
+    private var boardId = ""
+    private lateinit var mLayoutManager: LinearLayoutManager
     private var currentPage = 1
     private var isLoading = false
     private val commentsPerPage = 30
@@ -79,27 +88,32 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
         binding.etNameCardDetails.setText(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name)
         binding.etNameCardDetails.setSelection(binding.etNameCardDetails.text.toString().length)
-
-
         mSelectedColor = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].labelColor
+        binding.description.setText(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].description)
+        val imageUrl=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].descriptionImageUrl
+        println(imageUrl)
+        if(imageUrl != ""){
+            binding.descriptionImage.visibility=View.VISIBLE
+            Glide.with(this)
+                .load(imageUrl)
+                .into(binding.descriptionImage)
+
+        }
         if (mSelectedColor.isNotEmpty()) {
             setColor()
         }
-
         binding.tvSelectLabelColor.setOnClickListener {
             labelColorsListDialog()
         }
-
-        setupSelectedMembersList()
-
         //if due date in database , set it
-        mSelectedDueDateMilliSeconds=mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].dueDate
-        if(mSelectedDueDateMilliSeconds >0){
-            val simpleDateFormat=SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            val selectedDate=simpleDateFormat.format(Date(mSelectedDueDateMilliSeconds))
-            binding.tvSelectDueDate.text=selectedDate
+        mSelectedDueDateMilliSeconds =
+            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].dueDate
+        if (mSelectedDueDateMilliSeconds > 0) {
+            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            val selectedDate = simpleDateFormat.format(Date(mSelectedDueDateMilliSeconds))
+            binding.tvSelectDueDate.text = selectedDate
         }
-
+        setupSelectedMembersList()
 
         binding.tvSelectMembers.setOnClickListener {
             membersListDialog()
@@ -114,20 +128,39 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
                 }
             }
 
-        binding.tvSelectDueDate.setOnClickListener{
+        binding.tvSelectDueDate.setOnClickListener {
             showDatePicker()
         }
 
         initRecyclerView()
 
-        binding.postComment.setOnClickListener{
+        binding.postComment.setOnClickListener {
             postComment()
         }
 
-        boardId= mBoardDetails.boardId
+        boardId = mBoardDetails.boardId
 
-        listenForCommentUpdates(boardId, mTaskListPosition, mCardPosition, commentsPerPage, 0) { updatedCommentList ->
+        listenForCommentUpdates(
+            boardId,
+            mTaskListPosition,
+            mCardPosition,
+            commentsPerPage,
+            0
+        ) { updatedCommentList ->
             updateCommentListUI(updatedCommentList)
+
+        }
+
+        binding.btnAddImage.setOnClickListener {
+
+            val intent = Intent(this@CardDetailsActivity, GenerateImageActivity::class.java).apply {
+                putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+                putExtra(Constants.TASK_LIST_ITEM_POSITION, mTaskListPosition)
+                putExtra(Constants.CARD_LIST_ITEM_POSITION, mCardPosition)
+                putExtra(Constants.BOARD_MEMBERS_LIST, mMembersDetailList)
+            }
+            //startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
+            getResult.launch(intent)
 
         }
 
@@ -135,7 +168,39 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     }
 
 
+    private val getResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val imageUri: String? = data?.getStringExtra(Constants.Image_URL)
+                val boardDetails: Board? = data?.getParcelableExtra(Constants.BOARD_DETAIL)
+                val taskListPosition =
+                    data?.getIntExtra(Constants.TASK_LIST_ITEM_POSITION, -1) ?: -1
+                val cardPosition = data?.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1) ?: -1
+                val membersList: ArrayList<User>? =
+                    data?.getParcelableArrayListExtra(Constants.BOARD_MEMBERS_LIST)
+                val mDescriptionImageUrl: String? = data?.getStringExtra(Constants.DESCRIPTION)
+                // println(imageUri);
+                if (imageUri != null) {
+                    binding.descriptionImage.visibility = View.VISIBLE
+                    Glide.with(this)
+                        .load(imageUri)
+                        .into(binding.descriptionImage)
 
+                }
+
+                mBoardDetails = boardDetails ?: mBoardDetails
+                mTaskListPosition = taskListPosition
+                mCardPosition = cardPosition
+                mMembersDetailList = membersList ?: mMembersDetailList
+              mDescriptionImageURL = mDescriptionImageUrl!!
+
+
+                setupSelectedMembersList()
+            }
+
+
+        }
 
     private fun initRecyclerView() {
         mLayoutManager = LinearLayoutManager(this)
@@ -167,15 +232,16 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     private fun postComment() {
         val commentText = binding.comment.text.toString()
 
-        val sharedPrefs = this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
-        val profileUri=sharedPrefs.getString(Constants.profileUri, "") ?: ""
+        val sharedPrefs =
+            this.getSharedPreferences(Constants.APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+        val profileUri = sharedPrefs.getString(Constants.profileUri, "") ?: ""
         if (commentText.isNotEmpty()) {
             val currentTime = Date().time
             val instanceOfComment = Comments(commentText, getUserName(), currentTime, profileUri)
             mCommentList.add(instanceOfComment)
             binding.comment.text.clear()
             adapter.notifyDataSetChanged()
-            mCommentList.addAll(generateDemoComments())
+            //mCommentList.addAll(generateDemoComments())
             updateCommentListInDatabase()
         } else {
             Toast.makeText(this@CardDetailsActivity, "Enter a comment.", Toast.LENGTH_SHORT).show()
@@ -256,7 +322,9 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
             mSelectedColor,
-            mSelectedDueDateMilliSeconds
+            mSelectedDueDateMilliSeconds,
+            binding.description.text.toString(),
+            mDescriptionImageURL
         )
 
         val taskList: ArrayList<Task> = mBoardDetails.taskList
@@ -400,11 +468,18 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             override fun onItemSelected(user: User, action: String) {
 
                 if (action == Constants.SELECT) {
-                    if (!mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.contains(user.id)) {
-                        mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.add(user.id)
+                    if (!mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.contains(
+                            user.id
+                        )
+                    ) {
+                        mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.add(
+                            user.id
+                        )
                     }
                 } else {
-                    mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.remove(user.id)
+                    mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.remove(
+                        user.id
+                    )
 
                     for (i in mMembersDetailList.indices) {
                         if (mMembersDetailList[i].id == user.id) {
@@ -427,7 +502,8 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     private fun setupSelectedMembersList() {
 
         // Assigned members of the Card.
-        val cardAssignedMembersList = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
+        val cardAssignedMembersList =
+            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
 
         // selected members list.
         val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
@@ -454,8 +530,10 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             binding.tvSelectMembers.visibility = View.GONE
             binding.rvSelectedMembersList.visibility = View.VISIBLE
 
-            binding.rvSelectedMembersList.layoutManager = GridLayoutManager(this@CardDetailsActivity, 6)
-            val adapter = CardMemberListItemsAdapter(this@CardDetailsActivity, selectedMembersList,true)
+            binding.rvSelectedMembersList.layoutManager =
+                GridLayoutManager(this@CardDetailsActivity, 6)
+            val adapter =
+                CardMemberListItemsAdapter(this@CardDetailsActivity, selectedMembersList, true)
             binding.rvSelectedMembersList.adapter = adapter
             adapter.setOnClickListener(object :
                 CardMemberListItemsAdapter.OnClickListener {
@@ -469,7 +547,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
         }
     }
 
-    private fun showDatePicker(){
+    private fun showDatePicker() {
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
@@ -480,9 +558,9 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             val selectedDate = "${sDayOfMonth}/${sMonthOfYear}/${year}"
             binding.tvSelectDueDate.text = selectedDate
 
-            val sdf=SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            val theDate=sdf.parse(selectedDate)
-            mSelectedDueDateMilliSeconds=theDate!!.time
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            val theDate = sdf.parse(selectedDate)
+            mSelectedDueDateMilliSeconds = theDate!!.time
         }, year, month, day)
 
         dpd.show()
@@ -495,7 +573,13 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
             isLoading = true
             val startPosition = currentPage * commentsPerPage
             binding.loadingSpinner.visibility = View.VISIBLE
-            listenForCommentUpdates(boardId, mTaskListPosition, mCardPosition, commentsPerPage, startPosition) { updatedCommentList ->
+            listenForCommentUpdates(
+                boardId,
+                mTaskListPosition,
+                mCardPosition,
+                commentsPerPage,
+                startPosition
+            ) { updatedCommentList ->
                 if (updatedCommentList.isNotEmpty()) {
                     mCommentList.addAll(updatedCommentList)
                     adapter.notifyDataSetChanged()
@@ -514,17 +598,17 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun onLikeClick(position: Int, likeCountTextView: TextView,likeButton:ImageButton) {
+    override fun onLikeClick(position: Int, likeCountTextView: TextView, likeButton: ImageButton) {
 
 
         val comment = mCommentList[position]
         val userId = getCurrentUserID()
 
-        if (!comment.dislikedBy.contains(userId) ) {
-            if(comment.likedBy.contains(userId)) {
+        if (!comment.dislikedBy.contains(userId)) {
+            if (comment.likedBy.contains(userId)) {
                 comment.likedBy.remove(userId)
                 likeButton.setImageResource(R.drawable.baseline_thumb_up_24)
-            }else{
+            } else {
                 comment.likedBy.add(userId)
 
                 likeButton.setImageResource(R.drawable.thum_up_after_liked)
@@ -534,7 +618,7 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
         }
 
         val likeCount = comment.likedBy.size
-        if(likeCount>0)
+        if (likeCount > 0)
 
             likeCountTextView.text = likeCount.toString()
         likeCountTextView.visibility = if (likeCount > 0) View.VISIBLE else View.INVISIBLE
@@ -544,17 +628,21 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun onDisLikeClick(position: Int, disLikeCountTextView: TextView,dislikeButton:ImageButton) {
+    override fun onDisLikeClick(
+        position: Int,
+        disLikeCountTextView: TextView,
+        dislikeButton: ImageButton
+    ) {
 
 
         val comment = mCommentList[position]
         val userId = getCurrentUserID()
 
-        if (!comment.likedBy.contains(userId) ) {
-            if(comment.dislikedBy.contains(userId)) {
+        if (!comment.likedBy.contains(userId)) {
+            if (comment.dislikedBy.contains(userId)) {
                 comment.dislikedBy.remove(userId)
                 dislikeButton.setImageResource(R.drawable.baseline_thumb_down_24)
-            }else{
+            } else {
                 comment.dislikedBy.add(userId)
                 dislikeButton.setImageResource(R.drawable.baseline_thumb_down_after_dislike_24)
             }
@@ -571,10 +659,15 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     }
 
 
-
     private fun updateCommentListInDatabase() {
-        FirebaseDatabaseClass().updateCommentListInDatabase( boardId,mTaskListPosition,mCardPosition,mCommentList)
+        FirebaseDatabaseClass().updateCommentListInDatabase(
+            boardId,
+            mTaskListPosition,
+            mCardPosition,
+            mCommentList
+        )
     }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun updateCommentListUI(updatedCommentList: ArrayList<Comments>) {
         // Update the local comment list
@@ -587,7 +680,14 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
 
     }
 
-    private fun listenForCommentUpdates(boardId: String, taskId: Int, cardId: Int, limit: Int, startPosition: Int, callback: (ArrayList<Comments>) -> Unit) {
+    private fun listenForCommentUpdates(
+        boardId: String,
+        taskId: Int,
+        cardId: Int,
+        limit: Int,
+        startPosition: Int,
+        callback: (ArrayList<Comments>) -> Unit
+    ) {
         val database = mDatabase
         val boardsRef = database.getReference("boards")
         val boardRef = boardsRef.child(boardId)
@@ -615,13 +715,11 @@ class CardDetailsActivity : BaseActivity(),CommentAdapter.OnClickListener
     }
 
 
-
-
-    private fun generateDemoComments():ArrayList<Comments>{
-        var demoComment:Comments
-        val demo=ArrayList<Comments>()
-        for(i in 0 until 1000 ){
-            demoComment=Comments("comment$i","user$i",System.currentTimeMillis())
+    private fun generateDemoComments(): ArrayList<Comments> {
+        var demoComment: Comments
+        val demo = ArrayList<Comments>()
+        for (i in 0 until 1000) {
+            demoComment = Comments("comment$i", "user$i", System.currentTimeMillis())
             demo.add(demoComment)
         }
 
