@@ -2,7 +2,9 @@
 package com.example.AproManager.javaCode.Activities;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -30,6 +32,7 @@ import java.util.regex.Pattern;
 
 public class SignUpActivity extends BaseActivity {
     private EditText etName, etEmail, etPassword;
+    FirebaseDatabaseClass register = new FirebaseDatabaseClass();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +55,32 @@ public class SignUpActivity extends BaseActivity {
         etPassword = findViewById(R.id.et_password);
         Button btnSignUp = findViewById(R.id.btn_sign_up);
 
+
+        etEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String email = s.toString().trim();
+                if (isEmailValid(email)) {
+                    register.checkEmailExists(getBaseContext(),email);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerUser();
+            }
+        });
+
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +102,7 @@ public class SignUpActivity extends BaseActivity {
         if (validateForm(name, email, password)) {
             showProgressDialog(getResources().getString(R.string.please_wait));
             FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -82,11 +111,13 @@ public class SignUpActivity extends BaseActivity {
                                 assert firebaseUser != null;
                                 String registeredEmail = firebaseUser.getEmail();
 
+
+                                assert registeredEmail != null;
                                 User user = new User(firebaseUser.getUid(), name, registeredEmail, "", 0, "", false);
 
-                                FirebaseDatabaseClass firestoreClass = new FirebaseDatabaseClass();
+
                                 //TODO handle user registration
-                                firestoreClass.registerUser(SignUpActivity.this, user);
+                                register.registerUser(SignUpActivity.this, user);
                             } else {
                                 Toast.makeText(SignUpActivity.this,
                                         task.getException().getMessage(),
@@ -135,4 +166,7 @@ public class SignUpActivity extends BaseActivity {
         FirebaseAuth.getInstance().signOut();
         finish();
     }
+
+
+
 }

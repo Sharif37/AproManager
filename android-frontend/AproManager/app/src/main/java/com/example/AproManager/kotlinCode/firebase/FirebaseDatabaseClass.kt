@@ -17,6 +17,7 @@ import com.example.AproManager.kotlinCode.models.Comments
 import com.example.AproManager.kotlinCode.models.User
 import com.example.AproManager.kotlinCode.utils.Constants
 import com.example.AproManager.kotlinCode.utils.Constants.APROMANAGER_SHAREPREFERENCE
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -26,7 +27,8 @@ import com.google.firebase.database.ValueEventListener
 
 class FirebaseDatabaseClass {
 
-    private val mDatabase = FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private val mDatabase =
+        FirebaseDatabase.getInstance("https://apromanager-972c5-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
     /**
      * A function to make an entry of the registered user in the firebase database.
@@ -44,6 +46,28 @@ class FirebaseDatabaseClass {
             }
     }
 
+    fun checkEmailExists(context: Context,email: String) {
+
+        val query = mDatabase.reference.child("users").orderByChild("email").equalTo(email)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val isExistingUser = dataSnapshot.exists()
+                //println(isExistingUser)
+
+                if (isExistingUser) {
+                    // Show a message to the user
+                    Constants.showToast(context, "This email is already registered.")
+                } else {
+                    // Email is not registered
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Constants.showToast(context, "Error checking email")
+            }
+        })
+
+    }
 
 
     /**
@@ -59,7 +83,11 @@ class FirebaseDatabaseClass {
 
                 when (activity) {
                     is SignInActivity -> activity.signInSuccess(loggedInUser)
-                    is MainActivity -> activity.updateNavigationUserDetails(loggedInUser, readBoardsList)
+                    is MainActivity -> activity.updateNavigationUserDetails(
+                        loggedInUser,
+                        readBoardsList
+                    )
+
                     is MyProfileActivity -> activity.setUserDataInUI(loggedInUser)
                 }
             }
@@ -69,9 +97,11 @@ class FirebaseDatabaseClass {
                     is SignInActivity -> {
                         activity.hideProgressDialog()
                     }
+
                     is MainActivity -> {
                         activity.hideProgressDialog()
                     }
+
                     is MyProfileActivity -> {
                         activity.hideProgressDialog()
                     }
@@ -155,8 +185,6 @@ class FirebaseDatabaseClass {
     }
 
 
-
-
     /**
      * A function to get the Board Details.
      */
@@ -184,7 +212,8 @@ class FirebaseDatabaseClass {
 
     fun addUpdateTaskList(activity: Activity, board: Board) {
 
-        val reference = mDatabase.getReference(Constants.BOARDS).child(board.boardId).child(Constants.TASK_LIST)
+        val reference =
+            mDatabase.getReference(Constants.BOARDS).child(board.boardId).child(Constants.TASK_LIST)
 
         reference.setValue(board.taskList)
             .addOnSuccessListener {
@@ -267,9 +296,9 @@ class FirebaseDatabaseClass {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                if(activity is MembersActivity) {
+                if (activity is MembersActivity) {
                     activity.hideProgressDialog()
-                }else if(activity is TaskListActivity){
+                } else if (activity is TaskListActivity) {
                     activity.hideProgressDialog()
                 }
             }
@@ -297,6 +326,7 @@ class FirebaseDatabaseClass {
             }
         })
     }
+
     /**
      * A function to get the list of user details which is assigned to the board.
      */
@@ -335,16 +365,22 @@ class FirebaseDatabaseClass {
         return currentUserID
     }
 
-    private fun saveCaches(activity: Activity, userName: String,uri:String) {
-        val sharedPrefs = activity.getSharedPreferences(APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
+    private fun saveCaches(activity: Activity, userName: String, uri: String) {
+        val sharedPrefs =
+            activity.getSharedPreferences(APROMANAGER_SHAREPREFERENCE, Context.MODE_PRIVATE)
         val editor = sharedPrefs.edit()
         editor.putString(Constants.User_Name, userName)
-        editor.putString(Constants.profileUri,uri)
+        editor.putString(Constants.profileUri, uri)
         editor.apply()
     }
 
 
-    fun updateCommentListInDatabase(boardId: String, taskId: Int, cardId: Int, commentList: ArrayList<Comments>) {
+    fun updateCommentListInDatabase(
+        boardId: String,
+        taskId: Int,
+        cardId: Int,
+        commentList: ArrayList<Comments>
+    ) {
         val database = mDatabase
         val boardsRef = database.getReference("boards")
         val boardRef = boardsRef.child(boardId)
@@ -358,7 +394,6 @@ class FirebaseDatabaseClass {
                 Log.e("Firebase", "Error updating comment list: $e")
             }
     }
-
 
 
 }

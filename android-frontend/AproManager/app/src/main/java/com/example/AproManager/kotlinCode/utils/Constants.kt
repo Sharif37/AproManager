@@ -1,10 +1,13 @@
 package com.example.AproManager.kotlinCode.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
+import android.widget.Toast
+import com.example.AproManager.kotlinCode.firebase.FirebaseDatabaseClass
 
 object Constants {
 
@@ -96,4 +99,9 @@ object Constants {
         return MimeTypeMap.getSingleton()
             .getExtensionFromMimeType(activity.contentResolver.getType(uri!!))
     }
+
+    fun showToast(context: Context , message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
 }
