@@ -4,10 +4,10 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    
+<!--    custom design equivalent for SASS -->
     <style name="floatingButton">
         <item name="android:textColor">@color/colorGray</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:backgroundTint">@color/colorBrown</item>
     </style>
     
       <style name="AppTheme.NoActionBar">
