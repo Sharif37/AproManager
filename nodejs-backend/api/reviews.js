@@ -9,9 +9,10 @@ app.use(bodyParser.json());
 app.use(logRequest); 
 
 // Route to fetch reviews
-app.get('/reviews', async (req, res) => {
+app.get('/api/reviews', async (req, res) => {
     try {
         const reviews = await db.getReviews();
+        //console.log(reviews);
         res.json(reviews); 
     } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -20,7 +21,7 @@ app.get('/reviews', async (req, res) => {
 });
 
 // Route to insert a new review
-app.post('/reviews', async (req, res) => {
+app.post('/api/reviews', async (req, res) => {
     const { rating, review, reviewBy, reviewTime, profileUri } = req.body;
     try {
         const reviewId = await db.insertReview(rating, review, reviewBy, reviewTime, profileUri);
