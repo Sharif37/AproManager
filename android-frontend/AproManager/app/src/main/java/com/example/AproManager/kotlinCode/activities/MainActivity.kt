@@ -137,6 +137,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 showRateAppDialog()
 
             }
+
+            R.id.report ->{
+                // Create an instance of crystalReportActivity
+                Log.d("MainActivity", "Report menu item clicked")
+                val reportActivity = crystalReportActivity()
+                reportActivity.getDailyReportData(this)
+
+            }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true

@@ -1,0 +1,39 @@
+{
+    "project_info": {
+      "project_number": "728997620153",
+      "project_id": "apromanager-972c5",
+      "storage_bucket": "apromanager-972c5.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:728997620153:android:465112f5d35e5dd47bae68",
+          "android_client_info": {
+            "package_name": "com.example.AproManager"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "728997620153-i0ii0hrtknp4b8p4b2srs26fikcnpvgk.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyD0O415ayqz45GQTlRxmnY_-ywZ6bidJBo"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "728997620153-i0ii0hrtknp4b8p4b2srs26fikcnpvgk.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
